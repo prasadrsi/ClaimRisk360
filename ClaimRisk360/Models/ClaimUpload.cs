@@ -24,6 +24,27 @@ public class ValidationResult
     public List<string> Warnings { get; set; } = [];
     [NotMapped]
     public string Status => IsValid ? "Passed" : "Rejected";
+
+    // Risk assessment from rule evaluation
+    public int RiskScore { get; set; }
+    public string RiskCategory { get; set; } = string.Empty;
+    public List<RiskViolation> RiskViolations { get; set; } = [];
+    public List<RiskFeatureContribution> FeatureContributions { get; set; } = [];
+}
+
+public class RiskViolation
+{
+    public string RuleName { get; set; } = string.Empty;
+    public string Severity { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public bool Triggered { get; set; }
+}
+
+public class RiskFeatureContribution
+{
+    public string FeatureName { get; set; } = string.Empty;
+    public double Contribution { get; set; }
+    public string Impact => Contribution >= 0 ? "Increases Risk" : "Decreases Risk";
 }
 
 public class ValidationError

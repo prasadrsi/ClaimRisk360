@@ -5,17 +5,52 @@ namespace ClaimRisk360.Services;
 
 /// <summary>
 /// Business Logic: claim validation rules.
-/// Reference data (valid codes, active providers) loaded from ReferenceDataRepository (Data Layer).
+/// Delegates to ClaimRisk360.Api for validation and AI-powered analysis.
+/// Falls back to local validation if the API is unavailable.
 /// </summary>
 public class ClaimValidationService
 {
     private readonly ReferenceDataRepository _refData;
+    private readonly ClaimRisk360ApiClient _apiClient;
+    private readonly ILogger<ClaimValidationService> _logger;
 
-    public ClaimValidationService(ReferenceDataRepository refData)
+    public ClaimValidationService(ReferenceDataRepository refData, ClaimRisk360ApiClient apiClient, ILogger<ClaimValidationService> logger)
     {
         _refData = refData;
+        _apiClient = apiClient;
+        _logger = logger;
     }
 
+    /// <summary>
+    /// Validate via the ClaimRisk360 API (includes Azure Foundry agent analysis).
+    /// Falls back to local validation on failure.
+    /// </summary>
+    public async Task<ValidationResult> ValidateAsync(ClaimUploadRequest request)
+    {
+        var apiResult = await _apiClient.ValidateClaimAsync(request);
+        if (apiResult is not null)
+        {
+            // Map API response to local model
+            var result = new ValidationResult();
+            foreach (var err in apiResult.Errors)
+                result.Errors.Add(new ValidationError { Field = err.Field, Code = err.Code, Message = err.Message });
+            result.Warnings.AddRange(apiResult.Warnings);
+            result.RiskScore = apiResult.RiskScore;
+            result.RiskCategory = apiResult.RiskCategory;
+            foreach (var v in apiResult.RiskViolations)
+                result.RiskViolations.Add(new RiskViolation { RuleName = v.RuleName, Severity = v.Severity, Description = v.Description, Triggered = v.Triggered });
+            foreach (var f in apiResult.FeatureContributions)
+                result.FeatureContributions.Add(new RiskFeatureContribution { FeatureName = f.FeatureName, Contribution = f.Contribution });
+            return result;
+        }
+
+        _logger.LogWarning("API unavailable, using local claim validation");
+        return Validate(request);
+    }
+
+    /// <summary>
+    /// Local validation (synchronous fallback).
+    /// </summary>
     public ValidationResult Validate(ClaimUploadRequest request)
     {
         var result = new ValidationResult();

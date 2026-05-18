@@ -10,6 +10,7 @@ public class ClaimsModel : PageModel
     private readonly FraudDetectionService _service;
     private readonly ClaimApprovalService _approvalService;
     private readonly RoleService _roleService;
+    private readonly ClaimRisk360ApiClient _apiClient;
 
     public PaginatedResult<Claim> PaginatedClaims { get; set; } = new();
     public List<Claim> Claims { get; set; } = [];  // Legacy support
@@ -39,11 +40,12 @@ public class ClaimsModel : PageModel
     public string? ErrorMessage { get; set; }
     public string? SuccessMessage { get; set; }
 
-    public ClaimsModel(FraudDetectionService service, ClaimApprovalService approvalService, RoleService roleService)
+    public ClaimsModel(FraudDetectionService service, ClaimApprovalService approvalService, RoleService roleService, ClaimRisk360ApiClient apiClient)
     {
         _service = service;
         _approvalService = approvalService;
         _roleService = roleService;
+        _apiClient = apiClient;
     }
 
     public async Task OnGetAsync(string? success)
@@ -92,5 +94,21 @@ public class ClaimsModel : PageModel
 
         if (!string.IsNullOrEmpty(ApprovalFilter) && ApprovalFilter != "All")
             Claims = Claims.Where(c => c.ApprovalStatus == ApprovalFilter).ToList();
+    }
+
+    /// <summary>
+    /// AJAX handler: dynamically calls ClaimRisk360.Api to evaluate rules for a specific claim.
+    /// </summary>
+    public async Task<IActionResult> OnGetReviewAsync(string claimId)
+    {
+        var claim = _service.GetClaim(claimId);
+        if (claim is null)
+            return new JsonResult(new { error = "Claim not found" }) { StatusCode = 404 };
+
+        var result = await _apiClient.EvaluateRulesAsync(claim);
+        if (result is null)
+            return new JsonResult(new { error = "API unavailable" }) { StatusCode = 503 };
+
+        return new JsonResult(result);
     }
 }

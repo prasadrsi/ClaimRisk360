@@ -85,12 +85,16 @@ public class ClaimRepository
     /// </summary>
     public async Task<List<Claim>> GetDuplicatesAsync(Claim claim)
     {
+        var minDate = claim.SubmissionDate.AddDays(-3);
+        var maxDate = claim.SubmissionDate.AddDays(3);
+
         return await _db.Claims
             .Where(c => c.ClaimId != claim.ClaimId &&
                         c.PatientId == claim.PatientId &&
                         c.ProviderId == claim.ProviderId &&
                         c.DiagnosisCode == claim.DiagnosisCode &&
-                        Math.Abs((c.SubmissionDate - claim.SubmissionDate).TotalDays) < 3)
+                        c.SubmissionDate >= minDate &&
+                        c.SubmissionDate <= maxDate)
             .ToListAsync();
     }
 

@@ -2,6 +2,7 @@ using ClaimRisk360.Data;
 using ClaimRisk360.Models;
 using ClaimRisk360.Services;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -15,7 +16,10 @@ public class ClaimValidationServiceTests
     public ClaimValidationServiceTests()
     {
         _mockRefData = new Mock<ReferenceDataRepository>();
-        _service = new ClaimValidationService(_mockRefData.Object);
+        var mockApiClient = new Mock<ClaimRisk360ApiClient>(
+            new HttpClient(), Mock.Of<ILogger<ClaimRisk360ApiClient>>());
+        var mockLogger = Mock.Of<ILogger<ClaimValidationService>>();
+        _service = new ClaimValidationService(_mockRefData.Object, mockApiClient.Object, mockLogger);
     }
 
     [Fact]

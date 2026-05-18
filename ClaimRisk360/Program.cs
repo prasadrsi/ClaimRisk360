@@ -84,6 +84,16 @@ builder.Services.AddScoped<PatternAnalysisService>();
 builder.Services.AddScoped<DigitalRiskService>();
 builder.Services.AddScoped<ClaimApprovalService>();
 builder.Services.AddScoped<RoleService>();
+
+// ClaimRisk360.Api HTTP client
+builder.Services.AddHttpClient<ClaimRisk360ApiClient>(client =>
+{
+    var baseUrl = builder.Configuration["ClaimRisk360Api:BaseUrl"] ?? "https://localhost:7200";
+    var apiKey = builder.Configuration["ClaimRisk360Api:ApiKey"] ?? "";
+    client.BaseAddress = new Uri(baseUrl);
+    client.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+});
+
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<NotificationService>();
 builder.Services.AddRazorPages()

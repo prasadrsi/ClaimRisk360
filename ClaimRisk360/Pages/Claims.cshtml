@@ -156,7 +156,11 @@
                     </td>
                     <td>
                         <div class="d-flex gap-1">
-                            <a asp-page="/Explainability" asp-route-ClaimId="@claim.ClaimId" class="btn btn-sm btn-outline-info" title="Review"><i class="bi bi-lightbulb"></i></a>
+                            <button type="button" class="btn btn-sm btn-outline-primary" title="Review Claim"
+                                    onclick="reviewClaim('@claim.ClaimId')">
+                                <i class="bi bi-search"></i>
+                            </button>
+                            <a asp-page="/Explainability" asp-route-ClaimId="@claim.ClaimId" class="btn btn-sm btn-outline-info" title="Explain"><i class="bi bi-lightbulb"></i></a>
                             @if (claim.ApprovalStatus == "Pending Review" && RoleAccess.Can(p => p.CanApproveClaim))
                             {
                                 <button type="button" class="btn btn-sm btn-outline-success" title="Approve"
@@ -295,3 +299,123 @@
     <span class="badge bg-danger me-2"><i class="bi bi-x-circle-fill"></i> Rejected</span>
     <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pending Review</span>
 </div>
+
+<!-- Claim Review Modal (dynamic API call) -->
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-search"></i> Claim Review: <span id="reviewClaimLabel"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reviewLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Evaluating claim rules via API...</p>
+                </div>
+                <div id="reviewError" class="alert alert-danger d-none"></div>
+                <div id="reviewContent" class="d-none">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">Risk Score</small>
+                                    <h3 id="reviewRiskScore" class="mb-0"></h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">Risk Category</small>
+                                    <h4><span id="reviewRiskCategory" class="badge"></span></h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <small class="text-muted">Violations</small>
+                                    <h3 id="reviewViolationCount" class="mb-0"></h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h6>Rule Violations</h6>
+                    <table class="table table-sm table-bordered" id="reviewViolationsTable">
+                        <thead class="table-light">
+                            <tr><th>Rule</th><th>Severity</th><th>Description</th></tr>
+                        </thead>
+                        <tbody id="reviewViolationsBody"></tbody>
+                    </table>
+                    <div id="reviewAgentSection" class="d-none mt-3">
+                        <h6><i class="bi bi-robot"></i> AI Agent Analysis</h6>
+                        <div id="reviewAgentAnalysis" class="bg-light border rounded p-3" style="white-space:pre-wrap;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    async function reviewClaim(claimId) {
+        // Reset modal state
+        document.getElementById('reviewClaimLabel').textContent = claimId;
+        document.getElementById('reviewLoading').classList.remove('d-none');
+        document.getElementById('reviewContent').classList.add('d-none');
+        document.getElementById('reviewError').classList.add('d-none');
+
+        var modal = new bootstrap.Modal(document.getElementById('reviewModal'));
+        modal.show();
+
+        try {
+            const response = await fetch(`/Claims?handler=Review&claimId=${encodeURIComponent(claimId)}`);
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || `HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            document.getElementById('reviewLoading').classList.add('d-none');
+            document.getElementById('reviewContent').classList.remove('d-none');
+
+            // Populate summary
+            document.getElementById('reviewRiskScore').textContent = data.riskScore;
+            const categoryBadge = document.getElementById('reviewRiskCategory');
+            categoryBadge.textContent = data.riskCategory;
+            categoryBadge.className = 'badge ' + (data.riskCategory === 'High' ? 'bg-danger' : data.riskCategory === 'Medium' ? 'bg-warning text-dark' : 'bg-success');
+            document.getElementById('reviewViolationCount').textContent = data.violations?.length || 0;
+
+            // Populate violations table
+            const tbody = document.getElementById('reviewViolationsBody');
+            tbody.innerHTML = '';
+            if (data.violations && data.violations.length > 0) {
+                data.violations.forEach(v => {
+                    const severityClass = v.severity === 'Critical' ? 'text-bg-danger' : v.severity === 'High' ? 'text-bg-warning' : 'text-bg-secondary';
+                    tbody.innerHTML += `<tr><td>${v.ruleName}</td><td><span class="badge ${severityClass}">${v.severity}</span></td><td>${v.description}</td></tr>`;
+                });
+                document.getElementById('reviewViolationsTable').classList.remove('d-none');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No violations detected</td></tr>';
+            }
+
+            // Agent analysis
+            if (data.agentAnalysis) {
+                document.getElementById('reviewAgentSection').classList.remove('d-none');
+                document.getElementById('reviewAgentAnalysis').textContent = data.agentAnalysis;
+            } else {
+                document.getElementById('reviewAgentSection').classList.add('d-none');
+            }
+        } catch (err) {
+            document.getElementById('reviewLoading').classList.add('d-none');
+            document.getElementById('reviewError').classList.remove('d-none');
+            document.getElementById('reviewError').textContent = 'Failed to review claim: ' + err.message;
+        }
+    }
+</script>
+}
