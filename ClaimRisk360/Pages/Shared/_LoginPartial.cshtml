@@ -1,0 +1,18 @@
+﻿@using System.Security.Principal
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-person-circle"></i>
+        <small>@User.Identity?.Name</small>
+        <a class="btn btn-sm btn-outline-secondary ms-1" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignOut">
+            <i class="bi bi-box-arrow-right"></i>
+        </a>
+    </div>
+}
+else
+{
+    <a class="btn btn-sm btn-primary" asp-area="MicrosoftIdentity" asp-controller="Account" asp-action="SignIn">
+        <i class="bi bi-box-arrow-in-right"></i> Sign in
+    </a>
+}

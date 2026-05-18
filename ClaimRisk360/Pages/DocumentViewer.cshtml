@@ -1,0 +1,114 @@
+@page
+@model ClaimRisk360.Pages.DocumentViewerModel
+@{
+    ViewData["Title"] = $"Document Viewer — {Model.Document?.DocumentId}";
+}
+
+@if (Model.Document is null)
+{
+    <div class="alert alert-warning">Document not found. <a asp-page="/Claims">Browse claims</a></div>
+}
+else
+{
+    <!-- Breadcrumb -->
+    <nav class="mb-3">
+        <ol class="breadcrumb mb-0" style="font-size:0.82rem;">
+            <li class="breadcrumb-item"><a asp-page="/Claims">Claims</a></li>
+            @if (Model.Claim is not null)
+            {
+                <li class="breadcrumb-item"><a asp-page="/Explainability" asp-route-ClaimId="@Model.Claim.ClaimId">@Model.Claim.ClaimId</a></li>
+            }
+            <li class="breadcrumb-item active">@Model.Document.FileName</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Document Content -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi @Model.Document.IconClass me-1"></i>
+                        <strong>@Model.Document.FileName</strong>
+                        <span class="badge @Model.Document.StatusBadgeClass ms-2">@Model.Document.Status</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                            <i class="bi bi-printer"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-4 cr-doc-viewer">
+                    @Html.Raw(Model.Document.Content)
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Metadata & Related -->
+        <div class="col-md-4">
+            <!-- Document Info -->
+            <div class="card mb-3">
+                <div class="card-header"><strong><i class="bi bi-info-circle"></i> Document Details</strong></div>
+                <div class="card-body">
+                    <dl class="row mb-0" style="font-size:0.82rem;">
+                        <dt class="col-5">Document ID</dt><dd class="col-7"><code>@Model.Document.DocumentId</code></dd>
+                        <dt class="col-5">Type</dt><dd class="col-7">@Model.Document.DocumentType</dd>
+                        <dt class="col-5">File Name</dt><dd class="col-7">@Model.Document.FileName</dd>
+                        <dt class="col-5">File Size</dt><dd class="col-7">@Model.Document.FileSizeDisplay</dd>
+                        <dt class="col-5">Uploaded</dt><dd class="col-7">@Model.Document.UploadedAt.ToString("MMM dd, yyyy HH:mm")</dd>
+                        <dt class="col-5">Uploaded By</dt><dd class="col-7">@Model.Document.UploadedBy</dd>
+                        <dt class="col-5">Version</dt><dd class="col-7">v@Model.Document.Version</dd>
+                        <dt class="col-5">Status</dt><dd class="col-7"><span class="badge @Model.Document.StatusBadgeClass">@Model.Document.Status</span></dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Associated Claim -->
+            @if (Model.Claim is not null)
+            {
+                <div class="card mb-3">
+                    <div class="card-header"><strong><i class="bi bi-link-45deg"></i> Associated Claim</strong></div>
+                    <div class="card-body">
+                        <dl class="row mb-0" style="font-size:0.82rem;">
+                            <dt class="col-5">Claim ID</dt><dd class="col-7"><a asp-page="/Explainability" asp-route-ClaimId="@Model.Claim.ClaimId">@Model.Claim.ClaimId</a></dd>
+                            <dt class="col-5">Patient</dt><dd class="col-7">@Model.Claim.PatientName</dd>
+                            <dt class="col-5">Provider</dt><dd class="col-7">@Model.Claim.ProviderName</dd>
+                            <dt class="col-5">Amount</dt><dd class="col-7">$@Model.Claim.Amount.ToString("N2")</dd>
+                            <dt class="col-5">Risk Score</dt><dd class="col-7"><span class="badge @Model.Claim.RiskBadgeClass">@Model.Claim.FraudRiskScore</span></dd>
+                            <dt class="col-5">Approval</dt><dd class="col-7"><span class="badge @Model.Claim.ApprovalBadgeClass"><i class="bi @Model.Claim.ApprovalIcon"></i> @Model.Claim.ApprovalStatus</span></dd>
+                        </dl>
+                    </div>
+                </div>
+            }
+
+            <!-- Related Documents -->
+            @if (Model.RelatedDocuments.Count > 1)
+            {
+                <div class="card">
+                    <div class="card-header"><strong><i class="bi bi-paperclip"></i> Other Documents for this Claim</strong></div>
+                    <div class="list-group list-group-flush">
+                        @foreach (var doc in Model.RelatedDocuments.Where(d => d.DocumentId != Model.Document.DocumentId))
+                        {
+                            <a asp-page="/DocumentViewer" asp-route-DocumentId="@doc.DocumentId"
+                               class="list-group-item list-group-item-action py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="bi @doc.IconClass me-1"></i>
+                                        <strong class="small">@doc.FileName</strong>
+                                        <br /><small class="text-muted">@doc.DocumentType &bull; @doc.FileSizeDisplay</small>
+                                    </div>
+                                    <i class="bi bi-chevron-right text-muted"></i>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Audit Note -->
+            <div class="alert alert-info mt-3" style="font-size:0.75rem;">
+                <i class="bi bi-shield-check"></i> <strong>Audit Trail:</strong> This document view has been logged for compliance purposes.
+            </div>
+        </div>
+    </div>
+}

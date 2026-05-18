@@ -1,0 +1,243 @@
+@page
+@model ClaimRisk360.Pages.ClaimUploadModel
+@{
+    ViewData["Title"] = "Submit Claim";
+}
+
+<h2 class="mb-4"><i class="bi bi-upload"></i> Claim Submission</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header"><strong>New Claim</strong></div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Patient Name</label>
+                            <input asp-for="ClaimRequest.PatientName" class="form-control" placeholder="e.g. Alice Johnson" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Patient ID</label>
+                            <input asp-for="ClaimRequest.PatientId" class="form-control" placeholder="e.g. PAT-1001" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Provider Name</label>
+                            <input asp-for="ClaimRequest.ProviderName" class="form-control" placeholder="e.g. Dr. Sarah Mitchell" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Provider ID</label>
+                            <input asp-for="ClaimRequest.ProviderId" class="form-control" placeholder="e.g. PRV-100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Specialty</label>
+                            <select asp-for="ClaimRequest.Specialty" class="form-select">
+                                <option value="">Select...</option>
+                                <option>Cardiology</option>
+                                <option>Orthopedics</option>
+                                <option>General Practice</option>
+                                <option>Dermatology</option>
+                                <option>Neurology</option>
+                                <option>Pharmacy</option>
+                                <option>Radiology</option>
+                                <option>Emergency Medicine</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Location</label>
+                            <input asp-for="ClaimRequest.Location" class="form-control" placeholder="e.g. New York" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Diagnosis Code</label>
+                            <input asp-for="ClaimRequest.DiagnosisCode" class="form-control" placeholder="e.g. I25.1" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Procedure Code</label>
+                            <input asp-for="ClaimRequest.ProcedureCode" class="form-control" placeholder="e.g. 99213" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Amount ($)</label>
+                            <input asp-for="ClaimRequest.Amount" type="number" step="0.01" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Service Date</label>
+                            <input asp-for="ClaimRequest.ServiceDate" type="date" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Document Upload Section -->
+                    <hr class="my-4" />
+                    <h6><i class="bi bi-paperclip"></i> Supporting Documents</h6>
+                    <p class="text-muted small">Attach receipts, invoices, medical reports, prescriptions, or other supporting evidence.</p>
+
+                    <div id="documentRows">
+                        <div class="row g-2 mb-2 document-row">
+                            <div class="col-md-5">
+                                <input type="file" name="Documents" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                            </div>
+                            <div class="col-md-4">
+                                <select name="DocumentTypes" class="form-select form-select-sm">
+                                    <option value="">Document type...</option>
+                                    <option>Medical Report</option>
+                                    <option>Invoice</option>
+                                    <option>Receipt</option>
+                                    <option>Lab Result</option>
+                                    <option>Prescription</option>
+                                    <option>ID Proof</option>
+                                    <option>Insurance Card</option>
+                                    <option>Referral Letter</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="button" class="btn btn-sm btn-outline-success" onclick="addDocumentRow()">
+                                    <i class="bi bi-plus-circle"></i> Add More
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-muted">Accepted: PDF, JPG, PNG, DOC, DOCX (max 10 MB each)</small>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Submit Claim</button>
+                        <a asp-page="/Claims" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header"><strong>Submission Channels</strong></div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="bi bi-globe text-primary"></i> REST API (real-time)</li>
+                    <li class="mb-2"><i class="bi bi-file-earmark-arrow-up text-success"></i> Batch Upload (daily/hourly)</li>
+                    <li><i class="bi bi-pencil-square text-warning"></i> Manual Upload (this form)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><strong>Validation Pipeline</strong></div>
+            <div class="card-body">
+                <ol class="mb-0 small">
+                    <li>Schema &amp; data-type validation</li>
+                    <li>Mandatory field check</li>
+                    <li>Duplicate claim detection</li>
+                    <li>Policy &amp; eligibility check</li>
+                    <li>Provider enrollment status</li>
+                    <li>Date-of-service validity</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Submitted && Model.Result is not null)
+{
+    <div class="mt-4">
+        @if (Model.Result.IsValid)
+        {
+            <div class="alert alert-success">
+                <h5><i class="bi bi-check-circle"></i> Validation Passed</h5>
+                <p class="mb-0">Claim has been accepted and routed to the fraud detection pipeline.</p>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                <h5><i class="bi bi-x-circle"></i> Validation Failed &mdash; @Model.Result.Errors.Count error(s)</h5>
+                <table class="table table-sm table-bordered mt-2 mb-0 bg-white">
+                    <thead><tr><th>Field</th><th>Code</th><th>Message</th></tr></thead>
+                    <tbody>
+                        @foreach (var error in Model.Result.Errors)
+                        {
+                            <tr>
+                                <td><code>@error.Field</code></td>
+                                <td><span class="badge bg-danger">@error.Code</span></td>
+                                <td>@error.Message</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        @if (Model.Result.Warnings.Count > 0)
+        {
+            <div class="alert alert-warning">
+                <h6><i class="bi bi-exclamation-triangle"></i> Warnings</h6>
+                <ul class="mb-0">
+                    @foreach (var warning in Model.Result.Warnings)
+                    {
+                        <li>@warning</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        @if (Model.UploadedDocuments.Count > 0)
+        {
+            <div class="card">
+                <div class="card-header">
+                    <strong><i class="bi bi-paperclip"></i> Uploaded Documents</strong>
+                    <span class="badge bg-primary float-end">@Model.UploadedDocuments.Count file(s)</span>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr><th>Document</th><th>Type</th><th>Size</th><th>Uploaded</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var doc in Model.UploadedDocuments)
+                            {
+                                <tr>
+                                    <td><i class="bi @doc.IconClass"></i> @doc.FileName</td>
+                                    <td>@doc.DocumentType</td>
+                                    <td>@doc.FileSizeDisplay</td>
+                                    <td><small>@doc.UploadedAt.ToString("MMM dd, HH:mm")</small></td>
+                                    <td><span class="badge @doc.StatusBadgeClass">@doc.Status</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function addDocumentRow() {
+            const container = document.getElementById('documentRows');
+            const row = document.createElement('div');
+            row.className = 'row g-2 mb-2 document-row';
+            row.innerHTML = `
+                <div class="col-md-5">
+                    <input type="file" name="Documents" class="form-control form-control-sm" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
+                </div>
+                <div class="col-md-4">
+                    <select name="DocumentTypes" class="form-select form-select-sm">
+                        <option value="">Document type...</option>
+                        <option>Medical Report</option>
+                        <option>Invoice</option>
+                        <option>Receipt</option>
+                        <option>Lab Result</option>
+                        <option>Prescription</option>
+                        <option>ID Proof</option>
+                        <option>Insurance Card</option>
+                        <option>Referral Letter</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.document-row').remove()">
+                        <i class="bi bi-trash"></i> Remove
+                    </button>
+                </div>`;
+            container.appendChild(row);
+        }
+    </script>
+}

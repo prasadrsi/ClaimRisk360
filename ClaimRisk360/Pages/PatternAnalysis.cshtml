@@ -1,0 +1,92 @@
+@page
+@model ClaimRisk360.Pages.PatternAnalysisModel
+@{
+    ViewData["Title"] = "Pattern Analysis";
+}
+
+<h2 class="mb-4"><i class="bi bi-graph-up-arrow"></i> Claim History &amp; Pattern Analysis</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="card text-white bg-danger h-100">
+            <div class="card-body text-center">
+                <h6>Critical</h6>
+                <h2>@Model.Patterns.Count(p => p.Severity == "Critical")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-dark bg-warning h-100">
+            <div class="card-body text-center">
+                <h6>High</h6>
+                <h2>@Model.Patterns.Count(p => p.Severity == "High")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-white bg-info h-100">
+            <div class="card-body text-center">
+                <h6>Medium</h6>
+                <h2>@Model.Patterns.Count(p => p.Severity == "Medium")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-light h-100">
+            <div class="card-body">
+                <h6>Pattern Types Detected</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var group in Model.Patterns.GroupBy(p => p.PatternType))
+                    {
+                        <span class="badge bg-secondary">@group.Key: @group.Count()</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <a asp-page="/PatternAnalysis" asp-route-type="All" class="btn btn-sm btn-outline-secondary @(Model.FilterType is null or "All" ? "active" : "")">All</a>
+    <a asp-page="/PatternAnalysis" asp-route-type="Frequency Spike" class="btn btn-sm btn-outline-danger @(Model.FilterType == "Frequency Spike" ? "active" : "")"><i class="bi bi-graph-up-arrow"></i> Frequency</a>
+    <a asp-page="/PatternAnalysis" asp-route-type="Amount Anomaly" class="btn btn-sm btn-outline-warning @(Model.FilterType == "Amount Anomaly" ? "active" : "")"><i class="bi bi-currency-dollar"></i> Amount</a>
+    <a asp-page="/PatternAnalysis" asp-route-type="Timing Anomaly" class="btn btn-sm btn-outline-info @(Model.FilterType == "Timing Anomaly" ? "active" : "")"><i class="bi bi-clock-history"></i> Timing</a>
+    <a asp-page="/PatternAnalysis" asp-route-type="Geographic Anomaly" class="btn btn-sm btn-outline-primary @(Model.FilterType == "Geographic Anomaly" ? "active" : "")"><i class="bi bi-geo-alt"></i> Geographic</a>
+    <a asp-page="/PatternAnalysis" asp-route-type="Behavioral" class="btn btn-sm btn-outline-dark @(Model.FilterType == "Behavioral" ? "active" : "")"><i class="bi bi-person-exclamation"></i> Behavioral</a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Pattern</th>
+                        <th>Type</th>
+                        <th>Entity</th>
+                        <th>Description</th>
+                        <th>Occurrences</th>
+                        <th>Time Frame</th>
+                        <th>Severity</th>
+                        <th>Detected</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pattern in Model.Patterns)
+                    {
+                        <tr>
+                            <td><code>@pattern.PatternId</code></td>
+                            <td><i class="bi @pattern.IconClass me-1"></i> @pattern.PatternType</td>
+                            <td><strong>@pattern.Entity</strong><br /><small class="text-muted">@pattern.EntityId</small></td>
+                            <td>@pattern.Description</td>
+                            <td><strong>@pattern.Occurrences</strong></td>
+                            <td><small>@pattern.TimeFrame</small></td>
+                            <td><span class="badge @pattern.SeverityBadgeClass">@pattern.Severity</span></td>
+                            <td><small>@pattern.DetectedAt.ToString("MMM dd")</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

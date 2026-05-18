@@ -1,0 +1,72 @@
+[
+  {
+    "RingId": "RING-001",
+    "Label": "Metro Health Network",
+    "ClaimCount": 23,
+    "TotalAmount": 187500,
+    "RiskScore": 89,
+    "Nodes": [
+      { "Id": "D1", "Label": "Dr. James Cooper", "Type": "Doctor", "X": 300, "Y": 150 },
+      { "Id": "D2", "Label": "Dr. Emily Ross", "Type": "Doctor", "X": 500, "Y": 150 },
+      { "Id": "H1", "Label": "Metro Health Clinic", "Type": "Hospital", "X": 400, "Y": 50 },
+      { "Id": "P1", "Label": "Alice Johnson", "Type": "Patient", "X": 200, "Y": 300 },
+      { "Id": "P2", "Label": "Bob Smith", "Type": "Patient", "X": 350, "Y": 320 },
+      { "Id": "P3", "Label": "Carol Davis", "Type": "Patient", "X": 500, "Y": 300 },
+      { "Id": "PH1", "Label": "CityPharm", "Type": "Pharmacy", "X": 600, "Y": 200 }
+    ],
+    "Edges": [
+      { "From": "H1", "To": "D1", "Relationship": "Employs", "Weight": 3 },
+      { "From": "H1", "To": "D2", "Relationship": "Employs", "Weight": 3 },
+      { "From": "D1", "To": "P1", "Relationship": "Treats", "Weight": 8 },
+      { "From": "D1", "To": "P2", "Relationship": "Treats", "Weight": 12 },
+      { "From": "D2", "To": "P2", "Relationship": "Treats", "Weight": 6 },
+      { "From": "D2", "To": "P3", "Relationship": "Treats", "Weight": 9 },
+      { "From": "PH1", "To": "P1", "Relationship": "Prescribes", "Weight": 7 },
+      { "From": "PH1", "To": "P3", "Relationship": "Prescribes", "Weight": 5 },
+      { "From": "D1", "To": "PH1", "Relationship": "Refers", "Weight": 4 }
+    ]
+  },
+  {
+    "RingId": "RING-002",
+    "Label": "Valley Prescription Ring",
+    "ClaimCount": 15,
+    "TotalAmount": 94200,
+    "RiskScore": 76,
+    "Nodes": [
+      { "Id": "D3", "Label": "Dr. Michael Park", "Type": "Doctor", "X": 350, "Y": 100 },
+      { "Id": "PH2", "Label": "HealthFirst Pharmacy", "Type": "Pharmacy", "X": 500, "Y": 100 },
+      { "Id": "P4", "Label": "David Lee", "Type": "Patient", "X": 250, "Y": 250 },
+      { "Id": "P5", "Label": "Eva Martinez", "Type": "Patient", "X": 400, "Y": 280 },
+      { "Id": "P6", "Label": "Frank Wilson", "Type": "Patient", "X": 550, "Y": 250 }
+    ],
+    "Edges": [
+      { "From": "D3", "To": "P4", "Relationship": "Treats", "Weight": 11 },
+      { "From": "D3", "To": "P5", "Relationship": "Treats", "Weight": 9 },
+      { "From": "D3", "To": "P6", "Relationship": "Treats", "Weight": 7 },
+      { "From": "PH2", "To": "P4", "Relationship": "Prescribes", "Weight": 10 },
+      { "From": "PH2", "To": "P5", "Relationship": "Prescribes", "Weight": 8 },
+      { "From": "PH2", "To": "P6", "Relationship": "Prescribes", "Weight": 6 },
+      { "From": "D3", "To": "PH2", "Relationship": "Refers", "Weight": 5 }
+    ]
+  },
+  {
+    "RingId": "RING-003",
+    "Label": "Sunrise Billing Cluster",
+    "ClaimCount": 9,
+    "TotalAmount": 62800,
+    "RiskScore": 68,
+    "Nodes": [
+      { "Id": "H2", "Label": "Sunrise Medical", "Type": "Hospital", "X": 400, "Y": 80 },
+      { "Id": "D4", "Label": "Dr. Sarah Mitchell", "Type": "Doctor", "X": 300, "Y": 200 },
+      { "Id": "P7", "Label": "Grace Kim", "Type": "Patient", "X": 250, "Y": 330 },
+      { "Id": "P8", "Label": "Henry Brown", "Type": "Patient", "X": 450, "Y": 330 }
+    ],
+    "Edges": [
+      { "From": "H2", "To": "D4", "Relationship": "Employs", "Weight": 2 },
+      { "From": "D4", "To": "P7", "Relationship": "Treats", "Weight": 6 },
+      { "From": "D4", "To": "P8", "Relationship": "Treats", "Weight": 5 },
+      { "From": "H2", "To": "P7", "Relationship": "Admits", "Weight": 3 },
+      { "From": "H2", "To": "P8", "Relationship": "Admits", "Weight": 4 }
+    ]
+  }
+]

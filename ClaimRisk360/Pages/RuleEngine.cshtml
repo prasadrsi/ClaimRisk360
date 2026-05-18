@@ -1,0 +1,99 @@
+@page
+@model ClaimRisk360.Pages.RuleEngineModel
+@{
+    ViewData["Title"] = "Rule Engine";
+}
+
+<h2 class="mb-4"><i class="bi bi-journal-check"></i> Rule-Based Fraud Checks</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="card text-white bg-danger h-100">
+            <div class="card-body text-center">
+                <h6>Critical</h6>
+                <h2>@Model.TriggeredResults.Count(r => r.Severity == "Critical")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-dark bg-warning h-100">
+            <div class="card-body text-center">
+                <h6>High</h6>
+                <h2>@Model.TriggeredResults.Count(r => r.Severity == "High")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-white bg-info h-100">
+            <div class="card-body text-center">
+                <h6>Medium</h6>
+                <h2>@Model.TriggeredResults.Count(r => r.Severity == "Medium")</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body text-center">
+                <h6>Passed</h6>
+                <h2>@Model.AllResults.Count(r => !r.Triggered)</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-light h-100">
+            <div class="card-body text-center">
+                <h6>Total Rules Evaluated</h6>
+                <h2>@Model.AllResults.Count</h2>
+                <small class="text-muted">@Model.TriggeredResults.Count triggered</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-3">
+    <a asp-page="/RuleEngine" asp-route-category="All" class="btn btn-sm btn-outline-secondary @(Model.FilterCategory is null or "All" ? "active" : "")">All</a>
+    <a asp-page="/RuleEngine" asp-route-category="Duplicate" class="btn btn-sm btn-outline-danger @(Model.FilterCategory == "Duplicate" ? "active" : "")"><i class="bi bi-files"></i> Duplicate</a>
+    <a asp-page="/RuleEngine" asp-route-category="Threshold" class="btn btn-sm btn-outline-warning @(Model.FilterCategory == "Threshold" ? "active" : "")"><i class="bi bi-graph-up-arrow"></i> Threshold</a>
+    <a asp-page="/RuleEngine" asp-route-category="Blacklist" class="btn btn-sm btn-outline-dark @(Model.FilterCategory == "Blacklist" ? "active" : "")"><i class="bi bi-slash-circle"></i> Blacklist</a>
+    <a asp-page="/RuleEngine" asp-route-category="Timing" class="btn btn-sm btn-outline-info @(Model.FilterCategory == "Timing" ? "active" : "")"><i class="bi bi-clock-history"></i> Timing</a>
+    <a asp-page="/RuleEngine" asp-route-category="Eligibility" class="btn btn-sm btn-outline-primary @(Model.FilterCategory == "Eligibility" ? "active" : "")"><i class="bi bi-shield-exclamation"></i> Eligibility</a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Status</th>
+                        <th>Rule</th>
+                        <th>Category</th>
+                        <th>Severity</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rule in Model.AllResults)
+                    {
+                        <tr class="@(rule.Triggered ? "" : "table-light text-muted")">
+                            <td>
+                                @if (rule.Triggered)
+                                {
+                                    <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                }
+                            </td>
+                            <td><i class="bi @rule.IconClass me-1"></i> <strong>@rule.RuleName</strong></td>
+                            <td><span class="badge bg-secondary">@rule.Category</span></td>
+                            <td><span class="badge @rule.SeverityBadgeClass">@rule.Severity</span></td>
+                            <td><small>@rule.Details</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

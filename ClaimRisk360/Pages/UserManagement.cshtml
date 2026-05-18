@@ -1,0 +1,269 @@
+@page
+@model ClaimRisk360.Pages.UserManagementModel
+@{
+    ViewData["Title"] = "User & Role Management";
+}
+
+<h2 class="mb-4"><i class="bi bi-people"></i> User &amp; Role Management</h2>
+
+@if (Model.SuccessMessage is not null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Current Session -->
+<div class="card mb-4 border-primary">
+    <div class="card-header bg-primary text-white">
+        <strong><i class="bi bi-person-circle"></i> Current Session</strong>
+    </div>
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <h5 class="mb-1">@Model.CurrentUser.DisplayName</h5>
+                <small class="text-muted">@Model.CurrentUser.Email</small><br />
+                <span class="badge @Model.CurrentRole.BadgeClass mt-1">
+                    <i class="bi @Model.CurrentRole.IconClass"></i> @Model.CurrentRole.RoleName
+                </span>
+            </div>
+            <div class="col-md-4">
+                <small class="text-muted">Department:</small> @Model.CurrentUser.Department<br />
+                <small class="text-muted">User ID:</small> <code>@Model.CurrentUser.UserId</code>
+            </div>
+            <div class="col-md-4">
+                <form method="post" asp-page-handler="SwitchRole" class="d-flex gap-2">
+                    <select asp-for="SwitchToUserId" class="form-select form-select-sm">
+                        <option value="">Switch user...</option>
+                        @foreach (var u in Model.Users.Where(u => u.IsActive))
+                        {
+                            var role = Model.Roles.FirstOrDefault(r => r.RoleId == u.RoleId);
+                            <option value="@u.UserId" selected="@(u.UserId == Model.CurrentUser.UserId)">
+                                @u.DisplayName (@role?.RoleName)
+                            </option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary text-nowrap">
+                        <i class="bi bi-arrow-repeat"></i> Switch
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Role Permission Matrix -->
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-header"><strong><i class="bi bi-grid-3x3"></i> Role Permission Matrix</strong></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0 align-middle text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-start">Permission</th>
+                                @foreach (var role in Model.Roles)
+                                {
+                                    <th><span class="badge @role.BadgeClass"><i class="bi @role.IconClass"></i> @role.RoleName</span></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var permissionMap = new (string Label, Func<RolePermissions, bool> Check)[]
+                                {
+                                    ("View Dashboard", p => p.CanViewDashboard),
+                                    ("Submit Claim", p => p.CanSubmitClaim),
+                                    ("View Claims", p => p.CanViewClaims),
+                                    ("Review Claim", p => p.CanReviewClaim),
+                                    ("View Fraud Alerts", p => p.CanViewFraudAlerts),
+                                    ("View Patterns", p => p.CanViewPatterns),
+                                    ("View ML Models", p => p.CanViewMlModels),
+                                    ("Manage Cases", p => p.CanManageCases),
+                                    ("Approve Claim", p => p.CanApproveClaim),
+                                    ("Reject Claim", p => p.CanRejectClaim),
+                                    ("Escalate Claim", p => p.CanEscalateClaim),
+                                    ("View Fraud Rings", p => p.CanViewFraudRings),
+                                    ("View Provider Profiles", p => p.CanViewProviderProfiles),
+                                    ("View Reports", p => p.CanViewReports),
+                                    ("Export Reports", p => p.CanExportReports),
+                                    ("View Audit Trail", p => p.CanViewAuditTrail),
+                                    ("View Ethics Report", p => p.CanViewEthicsReport),
+                                    ("Manage Users", p => p.CanManageUsers),
+                                    ("Manage Roles", p => p.CanManageRoles),
+                                    ("Configure System", p => p.CanConfigureSystem),
+                                };
+                            }
+                            @foreach (var (label, check) in permissionMap)
+                            {
+                                <tr>
+                                    <td class="text-start"><small>@label</small></td>
+                                    @foreach (var role in Model.Roles)
+                                    {
+                                        <td>
+                                            @if (check(role.Permissions))
+                                            {
+                                                <i class="bi bi-check-circle-fill text-success"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-x-circle text-muted" style="opacity:0.3"></i>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User List -->
+    <div class="col-md-@(Model.SelectedUser is not null ? "6" : "8")">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <strong><i class="bi bi-people"></i> Users</strong>
+                <span class="badge bg-primary">@Model.Users.Count</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover table-sm mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr><th>User</th><th>Role</th><th>Department</th><th>Status</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            var role = Model.Roles.FirstOrDefault(r => r.RoleId == user.RoleId);
+                            <tr class="@(!user.IsActive ? "table-light text-muted" : "") @(user.UserId == Model.SelectedUserId ? "table-active" : "")">
+                                <td>
+                                    <strong>@user.DisplayName</strong>
+                                    @if (user.UserId == Model.CurrentUser.UserId)
+                                    {
+                                        <span class="badge bg-primary ms-1">You</span>
+                                    }
+                                    <br /><small class="text-muted">@user.Email</small>
+                                </td>
+                                <td><span class="badge @(role?.BadgeClass ?? "bg-secondary")"><i class="bi @(role?.IconClass ?? "bi-person")"></i> @(role?.RoleName ?? user.RoleId)</span></td>
+                                <td><small>@user.Department</small></td>
+                                <td>
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (Model.Permissions.CanManageUsers)
+                                    {
+                                        <a asp-page="/UserManagement" asp-route-userId="@user.UserId" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.SelectedUser is not null)
+    {
+        <!-- Edit User Panel -->
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header"><strong><i class="bi bi-pencil-square"></i> Edit User: @Model.SelectedUser.DisplayName</strong></div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="UpdateUser">
+                        <input type="hidden" asp-for="EditUserId" value="@Model.SelectedUser.UserId" />
+                        <div class="mb-3">
+                            <label class="form-label">Display Name</label>
+                            <input class="form-control" value="@Model.SelectedUser.DisplayName" disabled />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input class="form-control" value="@Model.SelectedUser.Email" disabled />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Role</label>
+                            <select asp-for="EditRoleId" class="form-select">
+                                @foreach (var role in Model.Roles)
+                                {
+                                    <option value="@role.RoleId" selected="@(role.RoleId == Model.SelectedUser.RoleId)">
+                                        @role.RoleName — @role.Description
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <input asp-for="EditDepartment" class="form-control" value="@Model.SelectedUser.Department" />
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input asp-for="EditIsActive" class="form-check-input" type="checkbox" checked="@Model.SelectedUser.IsActive" />
+                            <label class="form-check-label">Active</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Changes</button>
+                        <a asp-page="/UserManagement" class="btn btn-outline-secondary ms-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.Permissions.CanManageUsers)
+    {
+        <!-- Add User Panel -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><strong><i class="bi bi-person-plus"></i> Add New User</strong></div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="AddUser">
+                        <div class="mb-2">
+                            <label class="form-label">Display Name</label>
+                            <input asp-for="NewDisplayName" class="form-control form-control-sm" placeholder="Full name" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Email</label>
+                            <input asp-for="NewEmail" class="form-control form-control-sm" type="email" placeholder="user@example.com" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Role</label>
+                            <select asp-for="NewRoleId" class="form-select form-select-sm">
+                                <option value="">Select role...</option>
+                                @foreach (var role in Model.Roles)
+                                {
+                                    <option value="@role.RoleId">@role.RoleName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <input asp-for="NewDepartment" class="form-control form-control-sm" placeholder="Department" />
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-success w-100"><i class="bi bi-person-plus"></i> Create User</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Role Descriptions -->
+            <div class="card mt-3">
+                <div class="card-header"><strong><i class="bi bi-shield"></i> Role Definitions</strong></div>
+                <div class="list-group list-group-flush">
+                    @foreach (var role in Model.Roles)
+                    {
+                        <div class="list-group-item">
+                            <span class="badge @role.BadgeClass"><i class="bi @role.IconClass"></i> @role.RoleName</span>
+                            <br /><small class="text-muted">@role.Description</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

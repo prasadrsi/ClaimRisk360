@@ -1,0 +1,478 @@
+/* ========================================
+   CLAIMRISK 360 — Modern Layout
+   ======================================== */
+
+:root {
+    --cr-sidebar-width: 240px;
+    --cr-sidebar-bg: #1a1d2e;
+    --cr-sidebar-hover: #252840;
+    --cr-sidebar-active: #3b82f6;
+    --cr-sidebar-text: #a0a4b8;
+    --cr-sidebar-text-active: #ffffff;
+    --cr-header-height: 56px;
+    --cr-border: #e5e7eb;
+    --cr-bg: #f4f6f9;
+}
+
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html { font-size: 14px; }
+}
+
+body {
+    margin: 0;
+    background: var(--cr-bg);
+}
+
+/* --- Sidebar --- */
+.cr-sidebar {
+    width: var(--cr-sidebar-width);
+    min-height: 100vh;
+    background: var(--cr-sidebar-bg);
+    color: var(--cr-sidebar-text);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1040;
+}
+
+.cr-brand {
+    padding: 1rem 1rem 0.5rem;
+    color: #fff !important;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+}
+
+.cr-brand:hover,
+.cr-brand:focus,
+.cr-brand:visited {
+    color: #fff !important;
+}
+
+.cr-brand-title {
+    font-weight: 700;
+    color: #cb4242 !important;
+    letter-spacing: 0.04em;
+    font-size: 0.95rem;
+}
+
+.cr-brand-tagline {
+    font-size: 0.65rem;
+    color: #8b90a8 !important;
+    letter-spacing: 0.03em;
+}
+
+.cr-brand-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    color: #fff;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.cr-nav-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: #555a70;
+    padding: 1rem 1rem 0.3rem;
+    text-transform: uppercase;
+    list-style: none;
+}
+
+.cr-nav-link {
+    color: var(--cr-sidebar-text) !important;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    border-radius: 0.5rem !important;
+    margin-bottom: 1px;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.cr-nav-link:hover {
+    background: var(--cr-sidebar-hover);
+    color: var(--cr-sidebar-text-active) !important;
+}
+
+.cr-nav-link.active,
+.cr-nav-link:active {
+    background: var(--cr-sidebar-active) !important;
+    color: #fff !important;
+}
+
+.cr-nav-link i {
+    font-size: 1rem;
+    width: 1.2rem;
+    text-align: center;
+}
+
+.cr-sidebar-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #2a2d42;
+    margin-top: auto;
+}
+
+.cr-sidebar-footer .d-flex {
+    color: var(--cr-sidebar-text);
+    font-size: 0.8rem;
+}
+
+.cr-sidebar-footer .btn-outline-secondary {
+    color: var(--cr-sidebar-text);
+    border-color: #3a3d52;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.4rem;
+}
+
+.cr-sidebar-footer .btn-outline-secondary:hover {
+    background: var(--cr-sidebar-hover);
+    color: #fff;
+}
+
+.cr-sidebar-footer .btn-primary {
+    font-size: 0.8rem;
+}
+
+/* --- Notification Badge --- */
+.cr-notif-badge {
+    font-size: 0.6rem !important;
+    padding: 0.25em 0.5em !important;
+    min-width: 1.2rem;
+    line-height: 1;
+}
+
+/* --- Connection Status Dot --- */
+.cr-connection-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.cr-pulse {
+    animation: cr-pulse 1.5s infinite;
+}
+
+@keyframes cr-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* --- Refresh Bar --- */
+.cr-refresh-bar {
+    background: var(--cr-sidebar-active);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.cr-spin {
+    animation: cr-spin 1s linear infinite;
+}
+
+@keyframes cr-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* --- Document Viewer --- */
+.cr-doc-viewer {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: #1f2937;
+    background: #fff;
+}
+
+.cr-doc-viewer .doc-header {
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #1a1d2e;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1a1d2e;
+}
+
+.cr-doc-viewer .doc-section {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.cr-doc-viewer .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.82rem;
+}
+
+.cr-doc-viewer .doc-table td {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #e5e7eb;
+    vertical-align: top;
+}
+
+.cr-doc-viewer .doc-table .doc-label {
+    font-weight: 600;
+    background: #f9fafb;
+    width: 35%;
+    color: #374151;
+}
+
+.cr-doc-viewer .doc-table .doc-table-header td {
+    font-weight: 600;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.cr-doc-viewer .doc-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #d1d5db;
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+@media print {
+    .cr-sidebar, .cr-header, .cr-footer, .breadcrumb, .col-md-4, .btn { display: none !important; }
+    .col-md-8 { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; }
+    .card { border: none !important; box-shadow: none !important; }
+}
+
+/* --- Sidebar User Badge --- */
+.cr-sidebar-user {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid #2a2d42;
+    color: var(--cr-sidebar-text);
+    font-size: 0.8rem;
+}
+
+/* --- Mobile Top Bar --- */
+.cr-topbar {
+    background: var(--cr-sidebar-bg);
+    padding: 0.5rem 1rem;
+}
+
+/* --- Main Content Area --- */
+.cr-main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.cr-header {
+    height: var(--cr-header-height);
+    background: #fff;
+    border-bottom: 1px solid var(--cr-border);
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.cr-header h5 {
+    font-size: 0.95rem;
+    color: #374151;
+}
+
+.cr-header .d-flex {
+    font-size: 0.82rem;
+}
+
+.cr-content {
+    flex: 1;
+    padding: 1.5rem;
+    max-width: 1400px;
+}
+
+@media (min-width: 1600px) {
+    .cr-content { padding: 1.5rem 2.5rem; }
+}
+
+.cr-footer {
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid var(--cr-border);
+    background: #fff;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+/* --- Cards --- */
+.card {
+    border: 1px solid var(--cr-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    background: #fafbfc;
+    border-bottom: 1px solid var(--cr-border);
+    font-size: 0.85rem;
+}
+
+/* --- Buttons --- */
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.82rem;
+    padding: 0.45rem 1rem;
+}
+
+/* --- Tables --- */
+.table {
+    font-size: 0.82rem;
+}
+
+.table thead {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* --- Badges --- */
+.badge {
+    font-weight: 500;
+    font-size: 0.72rem;
+    padding: 0.35em 0.65em;
+    border-radius: 0.375rem;
+}
+
+/* --- Focus Ring --- */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #3b82f6;
+}
+
+/* --- Forms --- */
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    border-color: #d1d5db;
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* --- Alerts --- */
+.alert {
+    border-radius: 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* --- Home Page --- */
+.cr-home-section {
+    margin-bottom: 1.5rem;
+}
+
+.cr-home-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+.cr-home-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.cr-home-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+    border-color: var(--cr-sidebar-active) !important;
+}
+
+.cr-home-card h6 {
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.cr-home-card small {
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.cr-home-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.bg-indigo {
+    background-color: #6366f1 !important;
+}
+
+/* --- Progress --- */
+.progress {
+    border-radius: 0.5rem;
+}
+
+/* --- Responsive: hide sidebar footer login on desktop (shown in header) --- */
+@media (min-width: 768px) {
+    .cr-sidebar-footer { display: none; }
+}
+
+/* --- Responsive: show sidebar footer login on mobile --- */
+@media (max-width: 767.98px) {
+    .cr-sidebar {
+        width: 280px;
+        min-height: auto;
+        position: fixed;
+    }
+    .cr-content {
+        padding: 1rem;
+    }
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}

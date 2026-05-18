@@ -1,0 +1,23 @@
+[
+  { "ClaimId": "CLM-2024000", "FileName": "discharge_summary.pdf", "DocumentType": "Medical Report", "FileSizeBytes": 245760, "UploadedBy": "System", "DaysAgo": 45 },
+  { "ClaimId": "CLM-2024000", "FileName": "hospital_invoice_001.pdf", "DocumentType": "Invoice", "FileSizeBytes": 128000, "UploadedBy": "System", "DaysAgo": 45 },
+  { "ClaimId": "CLM-2024000", "FileName": "lab_results_cbc.pdf", "DocumentType": "Lab Result", "FileSizeBytes": 89600, "UploadedBy": "System", "DaysAgo": 44 },
+  { "ClaimId": "CLM-2024000", "FileName": "insurance_card_front.jpg", "DocumentType": "Insurance Card", "FileSizeBytes": 512000, "UploadedBy": "System", "DaysAgo": 45 },
+  { "ClaimId": "CLM-2024001", "FileName": "surgical_report.pdf", "DocumentType": "Medical Report", "FileSizeBytes": 384000, "UploadedBy": "System", "DaysAgo": 30 },
+  { "ClaimId": "CLM-2024001", "FileName": "anesthesia_invoice.pdf", "DocumentType": "Invoice", "FileSizeBytes": 156000, "UploadedBy": "System", "DaysAgo": 30 },
+  { "ClaimId": "CLM-2024001", "FileName": "pre_op_labs.pdf", "DocumentType": "Lab Result", "FileSizeBytes": 102400, "UploadedBy": "System", "DaysAgo": 31 },
+  { "ClaimId": "CLM-2024001", "FileName": "referral_dr_cooper.pdf", "DocumentType": "Referral Letter", "FileSizeBytes": 67200, "UploadedBy": "System", "DaysAgo": 32 },
+  { "ClaimId": "CLM-2024001", "FileName": "patient_id.jpg", "DocumentType": "ID Proof", "FileSizeBytes": 768000, "UploadedBy": "System", "DaysAgo": 30 },
+  { "ClaimId": "CLM-2024002", "FileName": "consultation_notes.pdf", "DocumentType": "Medical Report", "FileSizeBytes": 176000, "UploadedBy": "System", "DaysAgo": 25 },
+  { "ClaimId": "CLM-2024002", "FileName": "prescription_rx.pdf", "DocumentType": "Prescription", "FileSizeBytes": 45000, "UploadedBy": "System", "DaysAgo": 25 },
+  { "ClaimId": "CLM-2024003", "FileName": "emergency_report.pdf", "DocumentType": "Medical Report", "FileSizeBytes": 312000, "UploadedBy": "System", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024003", "FileName": "er_invoice.pdf", "DocumentType": "Invoice", "FileSizeBytes": 198000, "UploadedBy": "System", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024003", "FileName": "blood_work.pdf", "DocumentType": "Lab Result", "FileSizeBytes": 94000, "UploadedBy": "System", "DaysAgo": 19 },
+  { "ClaimId": "CLM-2024004", "FileName": "followup_notes.pdf", "DocumentType": "Medical Report", "FileSizeBytes": 134000, "UploadedBy": "System", "DaysAgo": 15 },
+  { "ClaimId": "CLM-2024004", "FileName": "pharmacy_receipt.pdf", "DocumentType": "Receipt", "FileSizeBytes": 56000, "UploadedBy": "System", "DaysAgo": 15 },
+  { "ClaimId": "CLM-2024004", "FileName": "prescription_refill.pdf", "DocumentType": "Prescription", "FileSizeBytes": 38400, "UploadedBy": "System", "DaysAgo": 14 },
+  { "ClaimId": "CLM-2024005", "FileName": "routine_checkup.pdf", "DocumentType": "Medical Report", "FileSizeBytes": 112000, "UploadedBy": "System", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024005", "FileName": "clinic_invoice.pdf", "DocumentType": "Invoice", "FileSizeBytes": 88000, "UploadedBy": "System", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024010", "FileName": "xray_report.pdf", "DocumentType": "Medical Report", "FileSizeBytes": 256000, "UploadedBy": "System", "DaysAgo": 10 },
+  { "ClaimId": "CLM-2024010", "FileName": "radiology_invoice.pdf", "DocumentType": "Invoice", "FileSizeBytes": 144000, "UploadedBy": "System", "DaysAgo": 10 }
+]

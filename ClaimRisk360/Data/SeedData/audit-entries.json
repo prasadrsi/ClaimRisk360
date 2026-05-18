@@ -1,0 +1,22 @@
+[
+  { "ClaimId": "CLM-2024000", "Action": "Claim Submitted", "PerformedBy": "System", "Details": "Claim received via REST API", "Category": "Ingestion", "DaysAgo": 45 },
+  { "ClaimId": "CLM-2024000", "Action": "Validation Passed", "PerformedBy": "System", "Details": "Schema and business rules validated", "Category": "Validation", "DaysAgo": 45 },
+  { "ClaimId": "CLM-2024000", "Action": "Fraud Score Generated", "PerformedBy": "AI Engine", "Details": "Risk score: 92, Category: High", "Category": "Detection", "DaysAgo": 45 },
+  { "ClaimId": "CLM-2024000", "Action": "Case Created", "PerformedBy": "System", "Details": "Auto-created for manual audit", "Category": "Case Management", "DaysAgo": 44 },
+  { "ClaimId": "CLM-2024000", "Action": "Assigned to Investigator", "PerformedBy": "System", "Details": "Assigned to Sarah Chen", "Category": "Case Management", "DaysAgo": 44 },
+  { "ClaimId": "CLM-2024000", "Action": "Review Started", "PerformedBy": "Sarah Chen", "Details": "Investigation initiated", "Category": "Case Management", "DaysAgo": 43 },
+  { "ClaimId": "CLM-2024000", "Action": "Escalated", "PerformedBy": "Sarah Chen", "Details": "Suspected collusion ring involvement", "Category": "Case Management", "DaysAgo": 42 },
+  { "ClaimId": "CLM-2024001", "Action": "Claim Submitted", "PerformedBy": "System", "Details": "Claim received via batch upload", "Category": "Ingestion", "DaysAgo": 30 },
+  { "ClaimId": "CLM-2024001", "Action": "Validation Passed", "PerformedBy": "System", "Details": "All checks passed with 1 warning", "Category": "Validation", "DaysAgo": 30 },
+  { "ClaimId": "CLM-2024001", "Action": "Fraud Score Generated", "PerformedBy": "AI Engine", "Details": "Risk score: 78, Category: High", "Category": "Detection", "DaysAgo": 30 },
+  { "ClaimId": "CLM-2024001", "Action": "Case Created", "PerformedBy": "System", "Details": "Auto-created for manual audit", "Category": "Case Management", "DaysAgo": 29 },
+  { "ClaimId": "CLM-2024001", "Action": "Review Completed", "PerformedBy": "James Rivera", "Details": "Confirmed legitimate high-cost procedure", "Category": "Case Management", "DaysAgo": 27 },
+  { "ClaimId": "CLM-2024001", "Action": "Approved", "PerformedBy": "James Rivera", "Details": "Approved after manual review", "Category": "Case Management", "DaysAgo": 27 },
+  { "ClaimId": "CLM-2024005", "Action": "Claim Submitted", "PerformedBy": "System", "Details": "Claim received via REST API", "Category": "Ingestion", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024005", "Action": "Validation Passed", "PerformedBy": "System", "Details": "Schema validated successfully", "Category": "Validation", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024005", "Action": "Fraud Score Generated", "PerformedBy": "AI Engine", "Details": "Risk score: 15, Category: Low", "Category": "Detection", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024005", "Action": "Auto-Approved", "PerformedBy": "System", "Details": "Score below threshold, auto-approved", "Category": "Decision", "DaysAgo": 20 },
+  { "ClaimId": "CLM-2024010", "Action": "Claim Submitted", "PerformedBy": "System", "Details": "Claim received via REST API", "Category": "Ingestion", "DaysAgo": 10 },
+  { "ClaimId": "CLM-2024010", "Action": "Validation Failed", "PerformedBy": "System", "Details": "Invalid diagnosis code submitted", "Category": "Validation", "DaysAgo": 10 },
+  { "ClaimId": "CLM-2024010", "Action": "Rejected", "PerformedBy": "System", "Details": "Claim rejected: INVALID_CODE", "Category": "Decision", "DaysAgo": 10 }
+]

@@ -1,0 +1,213 @@
+@page
+@model ClaimRisk360.Pages.ReportsModel
+@{
+    ViewData["Title"] = "Reports & Analytics";
+}
+
+<h2 class="mb-4"><i class="bi bi-bar-chart-line"></i> Reports &amp; Analytics</h2>
+
+<!-- Fraud Savings Summary -->
+<div class="card mb-4">
+    <div class="card-header"><strong><i class="bi bi-piggy-bank"></i> Fraud Savings Report</strong></div>
+    <div class="card-body">
+        <div class="row g-3 text-center">
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body">
+                        <h6>Amount at Risk</h6>
+                        <h3>$@Model.Stats.TotalAmountAtRisk.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h6>Est. Savings (Auto-Reject)</h6>
+                        <h3>$@((Model.Stats.TotalAmountAtRisk * 0.35m).ToString("N0"))</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body">
+                        <h6>Under Investigation</h6>
+                        <h3>$@((Model.Stats.TotalAmountAtRisk * 0.45m).ToString("N0"))</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h6>Cleared / Legitimate</h6>
+                        <h3>$@((Model.Stats.TotalAmountAtRisk * 0.20m).ToString("N0"))</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- False Positive Trends -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><strong><i class="bi bi-bullseye"></i> Detection Accuracy</strong></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-7">Total Claims Processed</dt>
+                    <dd class="col-5 text-end"><strong>@Model.Stats.TotalClaims</strong></dd>
+
+                    <dt class="col-7">Claims Flagged</dt>
+                    <dd class="col-5 text-end"><strong>@Model.Stats.FlaggedClaims</strong></dd>
+
+                    <dt class="col-7">High-Risk Claims</dt>
+                    <dd class="col-5 text-end"><span class="badge bg-danger">@Model.Stats.HighRiskClaims</span></dd>
+
+                    <dt class="col-7">False Positive Rate</dt>
+                    <dd class="col-5 text-end"><span class="badge bg-warning text-dark">@Model.Stats.FalsePositiveRate%</span></dd>
+
+                    <dt class="col-7">Fraud Rings Detected</dt>
+                    <dd class="col-5 text-end"><strong>@Model.Stats.FraudRingsDetected</strong></dd>
+
+                    <dt class="col-7">Rule Alerts Triggered</dt>
+                    <dd class="col-5 text-end"><strong>@Model.TriggeredRules</strong></dd>
+                </dl>
+
+                <hr />
+                <h6 class="mb-2">Risk Score Distribution</h6>
+                @for (int i = 0; i < Model.Stats.ScoreDistribution.Count; i++)
+                {
+                    var count = Model.Stats.ScoreDistribution[i];
+                    var pct = Model.Stats.TotalClaims > 0 ? (double)count / Model.Stats.TotalClaims * 100 : 0;
+                    var barColor = i < 3 ? "bg-success" : i < 7 ? "bg-warning" : "bg-danger";
+                    <div class="d-flex align-items-center mb-1">
+                        <small class="text-muted" style="width:50px;">@(i * 10)-@(i * 10 + 9)</small>
+                        <div class="progress flex-grow-1 mx-2" style="height:14px;">
+                            <div class="progress-bar @barColor" style="width:@pct%"></div>
+                        </div>
+                        <small style="width:25px;">@count</small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Investigator Productivity -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header"><strong><i class="bi bi-people"></i> Investigator Productivity</strong></div>
+            <div class="card-body">
+                <div class="row g-3 text-center mb-3">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">Total Cases</small>
+                                <h4>@Model.TotalCases</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">Resolved</small>
+                                <h4 class="text-success">@Model.ResolvedCases</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">Escalated</small>
+                                <h4 class="text-warning">@Model.EscalatedCases</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body py-2">
+                                <small class="text-muted">Open</small>
+                                <h4 class="text-info">@Model.OpenCases</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @{
+                    var resolutionRate = Model.TotalCases > 0 ? (double)Model.ResolvedCases / Model.TotalCases * 100 : 0;
+                }
+                <h6>Resolution Rate</h6>
+                <div class="progress mb-2" style="height:24px;">
+                    <div class="progress-bar bg-success" style="width:@resolutionRate%">@resolutionRate.ToString("F1")%</div>
+                </div>
+
+                <hr />
+                <h6>STP Automation</h6>
+                <dl class="row mb-0">
+                    <dt class="col-7">Auto-Approved</dt>
+                    <dd class="col-5 text-end"><span class="badge bg-success">@Model.AutoApproved</span></dd>
+                    <dt class="col-7">Auto-Rejected</dt>
+                    <dd class="col-5 text-end"><span class="badge bg-danger">@Model.AutoRejected</span></dd>
+                    <dt class="col-7">Routed to Review</dt>
+                    <dd class="col-5 text-end"><span class="badge bg-warning text-dark">@Model.RoutedToReview</span></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fraud Type Breakdown -->
+<div class="card mb-4">
+    <div class="card-header"><strong><i class="bi bi-pie-chart"></i> Fraud Type Breakdown</strong></div>
+    <div class="card-body">
+        <div class="row g-3">
+            @foreach (var ft in Model.Stats.FraudTypeCounts)
+            {
+                var total = Model.Stats.TotalClaims;
+                var pct = total > 0 ? (double)ft.Count / total * 100 : 0;
+                var color = ft.Type switch
+                {
+                    "Provider Fraud" => "bg-danger",
+                    "Patient Fraud" => "bg-warning",
+                    "Pharmacy Fraud" => "bg-info",
+                    "Collusion" => "bg-dark",
+                    _ => "bg-success"
+                };
+                <div class="col">
+                    <div class="text-center">
+                        <h4><span class="badge @color">@ft.Count</span></h4>
+                        <small class="text-muted">@ft.Type</small>
+                        <div class="progress mt-1" style="height:6px;">
+                            <div class="progress-bar @color" style="width:@pct%"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Top Risk Claims -->
+<div class="card">
+    <div class="card-header"><strong><i class="bi bi-exclamation-triangle"></i> Top 10 High-Risk Claims</strong></div>
+    <div class="card-body p-0">
+        <table class="table table-hover table-sm mb-0 align-middle">
+            <thead class="table-dark">
+                <tr><th>Claim</th><th>Patient</th><th>Provider</th><th>Amount</th><th>Score</th><th>Type</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var claim in Model.TopRiskClaims)
+                {
+                    <tr>
+                        <td><strong>@claim.ClaimId</strong></td>
+                        <td>@claim.PatientName</td>
+                        <td>@claim.ProviderName</td>
+                        <td>$@claim.Amount.ToString("N2")</td>
+                        <td><span class="badge @claim.RiskBadgeClass">@claim.FraudRiskScore</span></td>
+                        <td>@claim.FraudType</td>
+                        <td><a asp-page="/Explainability" asp-route-ClaimId="@claim.ClaimId" class="btn btn-sm btn-outline-info">Review</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

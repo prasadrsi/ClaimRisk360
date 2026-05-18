@@ -1,0 +1,297 @@
+@page
+@model ClaimRisk360.Pages.ClaimsModel
+@{
+    ViewData["Title"] = "Claims Inbox";
+}
+
+<h2 class="mb-3"><i class="bi bi-inbox"></i> Claims Inbox</h2>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (Model.SuccessMessage is not null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle"></i> @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Approval Summary -->
+<div class="row g-2 mb-3">
+    <div class="col">
+        <div class="card text-center bg-light py-1">
+            <small class="text-muted">Total</small>
+            <strong>@Model.Summary.TotalClaims</strong>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center py-1" style="background:#d1fae5;">
+            <small class="text-muted"><i class="bi bi-lightning-fill"></i> Auto-Approved</small>
+            <strong class="text-success">@Model.Summary.AutoApproved</strong>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center py-1" style="background:#d1fae5;">
+            <small class="text-muted"><i class="bi bi-check-circle-fill"></i> Manually Approved</small>
+            <strong class="text-success">@Model.Summary.ManuallyApproved</strong>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center py-1" style="background:#fee2e2;">
+            <small class="text-muted"><i class="bi bi-x-circle-fill"></i> Rejected</small>
+            <strong class="text-danger">@Model.Summary.Rejected</strong>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center py-1" style="background:#fef3c7;">
+            <small class="text-muted"><i class="bi bi-hourglass-split"></i> Pending Review</small>
+            <strong class="text-warning">@Model.Summary.PendingReview</strong>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <div>
+        <small class="text-muted fw-bold me-1">Risk:</small>
+        <a asp-page="/Claims" asp-route-Filter="All" asp-route-ApprovalFilter="@Model.ApprovalFilter" class="btn btn-sm btn-outline-secondary @(Model.Filter is null or "All" ? "active" : "")">All</a>
+        <a asp-page="/Claims" asp-route-Filter="Low" asp-route-ApprovalFilter="@Model.ApprovalFilter" class="btn btn-sm btn-outline-success @(Model.Filter == "Low" ? "active" : "")">Low</a>
+        <a asp-page="/Claims" asp-route-Filter="Medium" asp-route-ApprovalFilter="@Model.ApprovalFilter" class="btn btn-sm btn-outline-warning @(Model.Filter == "Medium" ? "active" : "")">Medium</a>
+        <a asp-page="/Claims" asp-route-Filter="High" asp-route-ApprovalFilter="@Model.ApprovalFilter" class="btn btn-sm btn-outline-danger @(Model.Filter == "High" ? "active" : "")">High</a>
+    </div>
+    <div class="ms-3">
+        <small class="text-muted fw-bold me-1">Approval:</small>
+        <a asp-page="/Claims" asp-route-Filter="@Model.Filter" asp-route-ApprovalFilter="All" class="btn btn-sm btn-outline-secondary @(Model.ApprovalFilter is null or "All" ? "active" : "")">All</a>
+        <a asp-page="/Claims" asp-route-Filter="@Model.Filter" asp-route-ApprovalFilter="Pending Review" class="btn btn-sm btn-outline-warning @(Model.ApprovalFilter == "Pending Review" ? "active" : "")">Pending</a>
+        <a asp-page="/Claims" asp-route-Filter="@Model.Filter" asp-route-ApprovalFilter="Auto-Approved" class="btn btn-sm btn-outline-success @(Model.ApprovalFilter == "Auto-Approved" ? "active" : "")">Auto-Approved</a>
+        <a asp-page="/Claims" asp-route-Filter="@Model.Filter" asp-route-ApprovalFilter="Approved" class="btn btn-sm btn-outline-success @(Model.ApprovalFilter == "Approved" ? "active" : "")">Approved</a>
+        <a asp-page="/Claims" asp-route-Filter="@Model.Filter" asp-route-ApprovalFilter="Rejected" class="btn btn-sm btn-outline-danger @(Model.ApprovalFilter == "Rejected" ? "active" : "")">Rejected</a>
+    </div>
+</div>
+
+<!-- Page Size Selector & Info -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <label class="text-nowrap">Items per page:</label>
+            <select name="PageSize" style="width:auto;" onchange="this.form.submit()">
+                @{if (Model.PageSize == 25) { <text><option value="25" selected>25</option></text> } else { <text><option value="25">25</option></text> }}
+                @{if (Model.PageSize == 50) { <text><option value="50" selected>50</option></text> } else { <text><option value="50">50</option></text> }}
+                @{if (Model.PageSize == 100) { <text><option value="100" selected>100</option></text> } else { <text><option value="100">100</option></text> }}
+            </select>
+            <input type="hidden" name="PageNumber" value="1" />
+            <input type="hidden" name="Filter" value="@Model.Filter" />
+            <input type="hidden" name="ApprovalFilter" value="@Model.ApprovalFilter" />
+        </form>
+    </div>
+    <div class="col-md-6 text-end text-muted small">
+        @if (Model.PaginatedClaims?.TotalCount > 0)
+        {
+            <span>Showing @((Model.PageNumber - 1) * Model.PageSize + 1) to @Math.Min(Model.PageNumber * Model.PageSize, Model.PaginatedClaims.TotalCount) of @Model.PaginatedClaims.TotalCount claims</span>
+        }
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Claim ID</th>
+                <th>Patient</th>
+                <th>Provider</th>
+                <th>Amount</th>
+                <th>Risk Score</th>
+                <th>Approval</th>
+                <th>Approved By</th>
+                <th>Comment</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in Model.Claims)
+            {
+                <tr class="@(claim.ApprovalStatus == "Pending Review" ? "" : "table-light")">
+                    <td><strong>@claim.ClaimId</strong></td>
+                    <td>@claim.PatientName</td>
+                    <td>@claim.ProviderName</td>
+                    <td>$@claim.Amount.ToString("N2")</td>
+                    <td>
+                        <span class="badge @claim.RiskBadgeClass">@claim.FraudRiskScore</span>
+                    </td>
+                    <td>
+                        <span class="badge @claim.ApprovalBadgeClass">
+                            <i class="bi @claim.ApprovalIcon"></i> @claim.ApprovalStatus
+                        </span>
+                        @if (claim.ApprovalMethod is "STP Rule")
+                        {
+                            <br /><small class="text-muted">STP</small>
+                        }
+                        else if (claim.ApprovalMethod is "Manual")
+                        {
+                            <br /><small class="text-muted">Manual</small>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(claim.ApprovedBy))
+                        {
+                            <small>@claim.ApprovedBy</small>
+                            @if (claim.ApprovedAt.HasValue)
+                            {
+                                <br /><small class="text-muted">@claim.ApprovedAt.Value.ToString("MMM dd")</small>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(claim.ApprovalComment))
+                        {
+                            <small class="text-muted" title="@claim.ApprovalComment">
+                                @(claim.ApprovalComment.Length > 40 ? claim.ApprovalComment[..40] + "..." : claim.ApprovalComment)
+                            </small>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a asp-page="/Explainability" asp-route-ClaimId="@claim.ClaimId" class="btn btn-sm btn-outline-info" title="Review"><i class="bi bi-lightbulb"></i></a>
+                            @if (claim.ApprovalStatus == "Pending Review" && RoleAccess.Can(p => p.CanApproveClaim))
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-success" title="Approve"
+                                        data-bs-toggle="modal" data-bs-target="#approveModal"
+                                        onclick="document.getElementById('modalClaimId').value='@claim.ClaimId'; document.getElementById('modalClaimLabel').textContent='@claim.ClaimId'; document.getElementById('modalAction').value='Approve'; document.getElementById('modalTitle').textContent='Approve Claim @claim.ClaimId';">
+                                    <i class="bi bi-check-circle"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" title="Reject"
+                                        data-bs-toggle="modal" data-bs-target="#approveModal"
+                                        onclick="document.getElementById('modalClaimId').value='@claim.ClaimId'; document.getElementById('modalClaimLabel').textContent='@claim.ClaimId'; document.getElementById('modalAction').value='Reject'; document.getElementById('modalTitle').textContent='Reject Claim @claim.ClaimId';">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@{
+    var queryString = $"&Filter={Model.Filter}&ApprovalFilter={Model.ApprovalFilter}&PageSize={Model.PageSize}";
+    ViewBag.QueryString = queryString;
+}
+
+@if (Model.PaginatedClaims?.TotalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <!-- Previous button -->
+            <li class="page-item @(Model.PaginatedClaims.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link" href="@(Model.PaginatedClaims.HasPreviousPage ? $"?PageNumber={Model.PaginatedClaims.CurrentPage - 1}{queryString}" : "#")" 
+                   @(Model.PaginatedClaims.HasPreviousPage ? "" : "onclick='return false;'") aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            @{
+                var startPage = Math.Max(1, Model.PaginatedClaims.CurrentPage - 2);
+                var endPage = Math.Min(Model.PaginatedClaims.TotalPages, Model.PaginatedClaims.CurrentPage + 2);
+
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?PageNumber=1@queryString">1</a>
+                    </li>
+                    if (startPage > 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                }
+
+                for (var pageNum = startPage; pageNum <= endPage; pageNum++)
+                {
+                    <li class="page-item @(pageNum == Model.PaginatedClaims.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="?PageNumber=@pageNum@queryString">@pageNum</a>
+                    </li>
+                }
+
+                if (endPage < Model.PaginatedClaims.TotalPages)
+                {
+                    if (endPage < Model.PaginatedClaims.TotalPages - 1)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link" href="?PageNumber=@Model.PaginatedClaims.TotalPages@queryString">@Model.PaginatedClaims.TotalPages</a>
+                    </li>
+                }
+            }
+
+            <!-- Next button -->
+            <li class="page-item @(Model.PaginatedClaims.HasNextPage ? "" : "disabled")">
+                <a class="page-link" href="@(Model.PaginatedClaims.HasNextPage ? $"?PageNumber={Model.PaginatedClaims.CurrentPage + 1}{queryString}" : "#")" 
+                   @(Model.PaginatedClaims.HasNextPage ? "" : "onclick='return false;'") aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="text-center text-muted small mt-2">
+        Page @Model.PaginatedClaims.CurrentPage of @Model.PaginatedClaims.TotalPages (Total: @Model.PaginatedClaims.TotalCount claims)
+    </div>
+}
+
+<!-- Approval Modal -->
+@if (RoleAccess.Can(p => p.CanApproveClaim))
+{
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Approve Claim</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="ApproveClaimId" id="modalClaimId" />
+                    <input type="hidden" asp-for="ApprovalAction" id="modalAction" />
+                    <input type="hidden" asp-for="Filter" />
+                    <input type="hidden" asp-for="ApprovalFilter" />
+                    <p>
+                        Claim: <strong id="modalClaimLabel"></strong>
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Comment <span class="text-danger">*</span></label>
+                        <textarea asp-for="ApprovalComment" class="form-control" rows="4" required
+                                  placeholder="Provide a mandatory justification for this decision..."></textarea>
+                        <div class="form-text text-danger">
+                            <i class="bi bi-exclamation-circle"></i> A comment is mandatory for all manual approvals and rejections.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check2-circle"></i> Submit Decision</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+}
+
+<div class="mt-3">
+    <h6>Approval Legend</h6>
+    <span class="badge bg-success me-2"><i class="bi bi-lightning-fill"></i> Auto-Approved (STP)</span>
+    <span class="badge bg-success me-2"><i class="bi bi-check-circle-fill"></i> Manually Approved</span>
+    <span class="badge bg-danger me-2"><i class="bi bi-x-circle-fill"></i> Rejected</span>
+    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pending Review</span>
+</div>

@@ -1,0 +1,138 @@
+@page
+@model ClaimRisk360.Pages.FraudRingsModel
+@{
+    ViewData["Title"] = "Fraud Ring Detection";
+}
+
+<h2 class="mb-4"><i class="bi bi-diagram-3"></i> Fraud Ring Graph Visualization</h2>
+
+<div class="row g-3 mb-4">
+    @foreach (var ring in Model.Rings)
+    {
+        <div class="col-md-4">
+            <a asp-page="/FraudRings" asp-route-SelectedRingId="@ring.RingId" class="text-decoration-none">
+                <div class="card @(ring.RingId == Model.SelectedRingId ? "border-danger border-2" : "")">
+                    <div class="card-body">
+                        <h5>@ring.Label</h5>
+                        <div class="d-flex justify-content-between">
+                            <span>Claims: <strong>@ring.ClaimCount</strong></span>
+                            <span>Total: <strong>$@ring.TotalAmount.ToString("N0")</strong></span>
+                            <span class="badge @(ring.RiskScore > 70 ? "bg-danger" : "bg-warning text-dark")">Score: @ring.RiskScore</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    }
+</div>
+
+@if (Model.SelectedRing is not null)
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>Network Graph &mdash; @Model.SelectedRing.Label</strong>
+            <span class="float-end">
+                <span class="badge bg-primary me-1"><i class="bi bi-person-badge"></i> Doctor</span>
+                <span class="badge bg-success me-1"><i class="bi bi-person"></i> Patient</span>
+                <span class="badge bg-warning text-dark me-1"><i class="bi bi-hospital"></i> Hospital</span>
+                <span class="badge bg-info me-1"><i class="bi bi-capsule"></i> Pharmacy</span>
+            </span>
+        </div>
+        <div class="card-body p-0">
+            <svg id="graphSvg" width="100%" height="420" style="background:#f8f9fa;"></svg>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><strong>Network Members</strong></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Nodes</h6>
+                    <table class="table table-sm">
+                        <thead><tr><th>Name</th><th>Type</th></tr></thead>
+                        <tbody>
+                            @foreach (var node in Model.SelectedRing.Nodes)
+                            {
+                                <tr><td>@node.Label</td><td><span class="badge bg-secondary">@node.Type</span></td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Connections</h6>
+                    <table class="table table-sm">
+                        <thead><tr><th>From</th><th>To</th><th>Relationship</th><th>Weight</th></tr></thead>
+                        <tbody>
+                            @foreach (var edge in Model.SelectedRing.Edges)
+                            {
+                                var fromNode = Model.SelectedRing.Nodes.First(n => n.Id == edge.From);
+                                var toNode = Model.SelectedRing.Nodes.First(n => n.Id == edge.To);
+                                <tr>
+                                    <td>@fromNode.Label</td>
+                                    <td>@toNode.Label</td>
+                                    <td>@edge.Relationship</td>
+                                    <td><strong>@edge.Weight</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const nodes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SelectedRing?.Nodes ?? []));
+        const edges = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SelectedRing?.Edges ?? []));
+
+        const svg = document.getElementById('graphSvg');
+        const ns = 'http://www.w3.org/2000/svg';
+        const colors = { Doctor: '#0d6efd', Patient: '#198754', Hospital: '#ffc107', Pharmacy: '#0dcaf0' };
+
+        edges.forEach(e => {
+            const from = nodes.find(n => n.Id === e.From);
+            const to = nodes.find(n => n.Id === e.To);
+            if (!from || !to) return;
+
+            const line = document.createElementNS(ns, 'line');
+            line.setAttribute('x1', from.X); line.setAttribute('y1', from.Y);
+            line.setAttribute('x2', to.X); line.setAttribute('y2', to.Y);
+            line.setAttribute('stroke', '#999'); line.setAttribute('stroke-width', Math.max(1, e.Weight / 2));
+            line.setAttribute('stroke-opacity', '0.6');
+            svg.appendChild(line);
+
+            const midX = (from.X + to.X) / 2, midY = (from.Y + to.Y) / 2;
+            const label = document.createElementNS(ns, 'text');
+            label.setAttribute('x', midX); label.setAttribute('y', midY - 5);
+            label.setAttribute('text-anchor', 'middle'); label.setAttribute('font-size', '10');
+            label.setAttribute('fill', '#666');
+            label.textContent = e.Relationship;
+            svg.appendChild(label);
+        });
+
+        nodes.forEach(n => {
+            const circle = document.createElementNS(ns, 'circle');
+            circle.setAttribute('cx', n.X); circle.setAttribute('cy', n.Y);
+            circle.setAttribute('r', 22); circle.setAttribute('fill', colors[n.Type] || '#6c757d');
+            circle.setAttribute('stroke', '#fff'); circle.setAttribute('stroke-width', '3');
+            svg.appendChild(circle);
+
+            const text = document.createElementNS(ns, 'text');
+            text.setAttribute('x', n.X); text.setAttribute('y', n.Y + 36);
+            text.setAttribute('text-anchor', 'middle'); text.setAttribute('font-size', '11');
+            text.setAttribute('font-weight', 'bold'); text.setAttribute('fill', '#333');
+            text.textContent = n.Label;
+            svg.appendChild(text);
+
+            const icon = document.createElementNS(ns, 'text');
+            icon.setAttribute('x', n.X); icon.setAttribute('y', n.Y + 5);
+            icon.setAttribute('text-anchor', 'middle'); icon.setAttribute('font-size', '14');
+            icon.setAttribute('fill', '#fff');
+            icon.textContent = { Doctor: 'Dr', Patient: 'Pt', Hospital: 'H', Pharmacy: 'Rx' }[n.Type] || '?';
+            svg.appendChild(icon);
+        });
+    </script>
+}

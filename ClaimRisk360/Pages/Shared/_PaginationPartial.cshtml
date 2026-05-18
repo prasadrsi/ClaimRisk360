@@ -1,0 +1,69 @@
+@model PaginatedResult<dynamic>
+
+@{
+    var showPagination = Model?.TotalPages > 1;
+}
+
+@if (showPagination)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <!-- Previous button -->
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link" href="?PageNumber=@Model.PreviousPage@ViewBag.QueryString" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            <!-- Page numbers -->
+            @{
+                var startPage = Math.Max(1, Model.CurrentPage - 2);
+                var endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 2);
+
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?PageNumber=1@ViewBag.QueryString">1</a>
+                    </li>
+                    if (startPage > 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                }
+
+                for (var p = startPage; p <= endPage; p++)
+                {
+                    <li class="page-item @(p == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="?PageNumber=@p@ViewBag.QueryString">@p</a>
+                    </li>
+                }
+
+                if (endPage < Model.TotalPages)
+                {
+                    if (endPage < Model.TotalPages - 1)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link" href="?PageNumber=@Model.TotalPages@ViewBag.QueryString">@Model.TotalPages</a>
+                    </li>
+                }
+            }
+
+            <!-- Next button -->
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link" href="?PageNumber=@Model.NextPage@ViewBag.QueryString" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="text-center text-muted small mt-2">
+        Page @Model.CurrentPage of @Model.TotalPages (Total: @Model.TotalCount items)
+    </div>
+}

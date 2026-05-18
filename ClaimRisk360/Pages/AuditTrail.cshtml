@@ -1,0 +1,162 @@
+@page
+@model ClaimRisk360.Pages.AuditTrailModel
+@{
+    ViewData["Title"] = "Audit Trail";
+}
+
+<h2 class="mb-4"><i class="bi bi-journal-text"></i> Audit Trail</h2>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <span class="badge bg-dark">Page @Model.PaginatedEntries.CurrentPage of @Model.PaginatedEntries.TotalPages | Total: @Model.PaginatedEntries.TotalCount record(s)</span>
+    </div>
+    <div class="col-md-6 text-end">
+        <form method="get" class="d-inline-flex gap-2 align-items-center">
+            <label class="text-nowrap" style="font-size: 0.9rem;">Items per page:</label>
+            <select name="PageSize" style="width:auto;" onchange="this.form.submit()">
+                @{if (Model.PageSize == 25) { <text><option value="25" selected>25</option></text> } else { <text><option value="25">25</option></text> }}
+                @{if (Model.PageSize == 50) { <text><option value="50" selected>50</option></text> } else { <text><option value="50">50</option></text> }}
+                @{if (Model.PageSize == 100) { <text><option value="100" selected>100</option></text> } else { <text><option value="100">100</option></text> }}
+            </select>
+            <input type="hidden" name="PageNumber" value="1" />
+            <input type="hidden" name="category" value="@Model.FilterCategory" />
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Audit ID</th>
+                        <th>Timestamp</th>
+                        <th>Claim</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                        <th>Performed By</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in Model.PaginatedEntries.Items)
+                    {
+                        var categoryClass = entry.Category switch
+                        {
+                            "Ingestion" => "bg-primary",
+                            "Validation" => "bg-info",
+                            "Detection" => "bg-warning text-dark",
+                            "Case Management" => "bg-danger",
+                            "Decision" => "bg-success",
+                            _ => "bg-secondary"
+                        };
+                        <tr>
+                            <td><small><code>@entry.AuditId</code></small></td>
+                            <td><small>@entry.Timestamp.ToString("yyyy-MM-dd HH:mm")</small></td>
+                            <td>
+                                <a asp-page="/AuditTrail" asp-route-claimId="@entry.ClaimId" class="text-decoration-none">
+                                    <strong>@entry.ClaimId</strong>
+                                </a>
+                            </td>
+                            <td><span class="badge @categoryClass">@entry.Category</span></td>
+                            <td><strong>@entry.Action</strong></td>
+                            <td>@entry.PerformedBy</td>
+                            <td><small class="text-muted">@entry.Details</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+@{
+    var queryString = $"&category={Model.FilterCategory}&PageSize={Model.PageSize}";
+}
+
+@if (Model.PaginatedEntries?.TotalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.PaginatedEntries.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link" href="@(Model.PaginatedEntries.HasPreviousPage ? $"?PageNumber={Model.PaginatedEntries.CurrentPage - 1}{queryString}" : "#")" 
+                   @(Model.PaginatedEntries.HasPreviousPage ? "" : "onclick='return false;'") aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+
+            @{
+                var startPage = Math.Max(1, Model.PaginatedEntries.CurrentPage - 2);
+                var endPage = Math.Min(Model.PaginatedEntries.TotalPages, Model.PaginatedEntries.CurrentPage + 2);
+
+                if (startPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="?PageNumber=1@queryString">1</a>
+                    </li>
+                    if (startPage > 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                }
+
+                for (var pageNum = startPage; pageNum <= endPage; pageNum++)
+                {
+                    <li class="page-item @(pageNum == Model.PaginatedEntries.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="?PageNumber=@pageNum@queryString">@pageNum</a>
+                    </li>
+                }
+
+                if (endPage < Model.PaginatedEntries.TotalPages)
+                {
+                    if (endPage < Model.PaginatedEntries.TotalPages - 1)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                    <li class="page-item">
+                        <a class="page-link" href="?PageNumber=@Model.PaginatedEntries.TotalPages@queryString">@Model.PaginatedEntries.TotalPages</a>
+                    </li>
+                }
+            }
+
+            <li class="page-item @(Model.PaginatedEntries.HasNextPage ? "" : "disabled")">
+                <a class="page-link" href="@(Model.PaginatedEntries.HasNextPage ? $"?PageNumber={Model.PaginatedEntries.CurrentPage + 1}{queryString}" : "#")" 
+                   @(Model.PaginatedEntries.HasNextPage ? "" : "onclick='return false;'") aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="text-center text-muted small mt-2">
+        Page @Model.PaginatedEntries.CurrentPage of @Model.PaginatedEntries.TotalPages
+    </div>
+}
+
+<div class="card mt-4 bg-light">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <i class="bi bi-shield-lock text-primary fs-4"></i>
+                <p class="small mb-0"><strong>Immutable</strong><br />Tamper-proof audit records</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-clock-history text-success fs-4"></i>
+                <p class="small mb-0"><strong>Traceable</strong><br />Full claim lifecycle tracking</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-file-earmark-check text-info fs-4"></i>
+                <p class="small mb-0"><strong>Compliant</strong><br />HIPAA &amp; GDPR ready</p>
+            </div>
+            <div class="col-md-3">
+                <i class="bi bi-person-badge text-warning fs-4"></i>
+                <p class="small mb-0"><strong>Accountable</strong><br />Every action attributed</p>
+            </div>
+        </div>
+    </div>
+</div>

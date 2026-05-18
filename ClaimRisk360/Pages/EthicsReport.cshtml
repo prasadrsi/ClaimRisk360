@@ -1,0 +1,145 @@
+@page
+@model ClaimRisk360.Pages.EthicsReportModel
+@{
+    ViewData["Title"] = "Ethics & Governance Report";
+}
+
+<h2 class="mb-4"><i class="bi bi-clipboard2-check"></i> Ethical Risk Assessment Report</h2>
+
+<div class="alert alert-info">
+    <strong>Purpose:</strong> This report documents the ethical safeguards, bias mitigation strategies, and governance
+    framework applied to the CLAIMRISK 360 platform.
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card h-100 border-danger">
+            <div class="card-header bg-danger text-white"><strong>1. Bias & Fairness Assessment</strong></div>
+            <div class="card-body">
+                <h6>Identified Risks</h6>
+                <ul>
+                    <li>Models may disproportionately flag <strong>rural hospitals</strong> due to lower claim volumes</li>
+                    <li>Certain <strong>specialties</strong> (e.g., emergency medicine) naturally have higher costs</li>
+                    <li>High-risk patient populations may be unfairly targeted</li>
+                </ul>
+                <h6>Mitigations Applied</h6>
+                <table class="table table-sm">
+                    <thead><tr><th>Measure</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>Bias audit on demographic features</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span></td></tr>
+                        <tr><td>Balanced training dataset sampling</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span></td></tr>
+                        <tr><td>Feature review with medical experts</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span></td></tr>
+                        <tr><td>Regular fairness metric monitoring</td><td><span class="badge bg-warning text-dark"><i class="bi bi-calendar"></i> Quarterly</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100 border-primary">
+            <div class="card-header bg-primary text-white"><strong>2. Explainability Requirements</strong></div>
+            <div class="card-body">
+                <h6>Principle</h6>
+                <p>Every fraud decision must be explainable. <strong>Black-box rejection is ethically unacceptable.</strong></p>
+                <h6>Implementation</h6>
+                <table class="table table-sm">
+                    <thead><tr><th>Technique</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>SHAP feature contributions</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Implemented</span></td></tr>
+                        <tr><td>Human-readable reason codes</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Implemented</span></td></tr>
+                        <tr><td>LIME local explanations</td><td><span class="badge bg-secondary"><i class="bi bi-clock"></i> Planned</span></td></tr>
+                        <tr><td>Audit trail for all decisions</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span></td></tr>
+                    </tbody>
+                </table>
+                <div class="alert alert-warning mt-2 mb-0">
+                    <small><i class="bi bi-exclamation-triangle"></i> No claim is auto-rejected without a human-readable explanation.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100 border-warning">
+            <div class="card-header bg-warning text-dark"><strong>3. False Positive Impact</strong></div>
+            <div class="card-body">
+                <h6>Consequences of False Positives</h6>
+                <ul>
+                    <li><i class="bi bi-clock-history"></i> Delayed patient treatment</li>
+                    <li><i class="bi bi-person-x"></i> Damaged provider reputation</li>
+                    <li><i class="bi bi-currency-dollar"></i> Financial harm to legitimate providers</li>
+                    <li><i class="bi bi-heartbreak"></i> Loss of trust in the system</li>
+                </ul>
+                <h6>Safeguards</h6>
+                <table class="table table-sm">
+                    <thead><tr><th>Safeguard</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>Human-in-the-loop review for all flags</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Enforced</span></td></tr>
+                        <tr><td>AI assists, does NOT decide alone</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Policy</span></td></tr>
+                        <tr><td>Appeal process for flagged providers</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Available</span></td></tr>
+                        <tr><td>False positive rate monitoring (&lt;5%)</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> 4.2% current</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100 border-success">
+            <div class="card-header bg-success text-white"><strong>4. Data Privacy & Compliance</strong></div>
+            <div class="card-body">
+                <h6>Regulatory Compliance</h6>
+                <table class="table table-sm">
+                    <thead><tr><th>Regulation</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>HIPAA compliance</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Certified</span></td></tr>
+                        <tr><td>GDPR compliance</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Certified</span></td></tr>
+                        <tr><td>Data encryption (at rest & in transit)</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> AES-256</span></td></tr>
+                        <tr><td>Data minimization principle</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Applied</span></td></tr>
+                        <tr><td>Audit logs for data access</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Active</span></td></tr>
+                        <tr><td>Anonymized/synthetic data for development</td><td><span class="badge bg-success"><i class="bi bi-check-circle"></i> Enforced</span></td></tr>
+                    </tbody>
+                </table>
+                <div class="alert alert-danger mt-2 mb-0">
+                    <small><i class="bi bi-shield-lock"></i> No AI model exposes patient identity unnecessarily. All demo data is synthetic.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header bg-dark text-white"><strong>5. AI Governance Framework</strong></div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="border rounded p-3 h-100">
+                    <h1><i class="bi bi-journal-check text-secondary"></i></h1>
+                            <h6>Rules Engine</h6>
+                            <small class="text-muted">Regulatory compliance checks applied first</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 h-100">
+                            <h1><i class="bi bi-cpu text-primary"></i></h1>
+                            <h6>ML Models</h6>
+                            <small class="text-muted">Isolation Forest + Autoencoders for pattern detection</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 h-100">
+                            <h1><i class="bi bi-diagram-3 text-danger"></i></h1>
+                            <h6>Graph AI</h6>
+                            <small class="text-muted">Network analysis for collusion ring detection</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="border rounded p-3 h-100">
+                            <h1><i class="bi bi-person-check text-success"></i></h1>
+                            <h6>Human Review</h6>
+                            <small class="text-muted">Final validation by trained investigators</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,143 @@
+@page
+@model ClaimRisk360.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Fraud Detection Dashboard";
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="bi bi-shield-check"></i> CLAIMRISK 360 Dashboard</h2>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Total Claims</h6>
+                    <h2>@Model.Stats.TotalClaims</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-dark bg-warning h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Flagged</h6>
+                    <h2>@Model.Stats.FlaggedClaims</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">High Risk</h6>
+                    <h2>@Model.Stats.HighRiskClaims</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-white bg-dark h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Amount at Risk</h6>
+                    <h2>$@Model.Stats.TotalAmountAtRisk.ToString("N0")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Fraud Rings</h6>
+                    <h2>@Model.Stats.FraudRingsDetected</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">False Positive %</h6>
+                    <h2>@Model.Stats.FalsePositiveRate%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><strong>Risk Score Distribution</strong></div>
+                <div class="card-body">
+                    <canvas id="scoreChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><strong>Fraud Type Breakdown</strong></div>
+                <div class="card-body">
+                    <canvas id="typeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5><i class="bi bi-search"></i> Claims Analysis</h5>
+                    <p class="text-muted">Review all claims with AI-generated risk scores</p>
+                    <a asp-page="/Claims" class="btn btn-outline-primary">View Claims</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5><i class="bi bi-diagram-3"></i> Fraud Ring Detection</h5>
+                    <p class="text-muted">Visualize provider-patient fraud networks</p>
+                    <a asp-page="/FraudRings" class="btn btn-outline-danger">View Fraud Rings</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5><i class="bi bi-clipboard2-check"></i> Ethics & Governance</h5>
+                    <p class="text-muted">Review ethical risk assessment and safeguards</p>
+                    <a asp-page="/EthicsReport" class="btn btn-outline-success">View Report</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script>
+        const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+        new Chart(scoreCtx, {
+            type: 'bar',
+            data: {
+                labels: ['0-9','10-19','20-29','30-39','40-49','50-59','60-69','70-79','80-89','90-100'],
+                datasets: [{
+                    label: 'Claims',
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.ScoreDistribution)),
+                    backgroundColor: [
+                        '#198754','#198754','#198754','#ffc107','#ffc107','#ffc107','#ffc107','#dc3545','#dc3545','#dc3545'
+                    ]
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+
+        const typeCtx = document.getElementById('typeChart').getContext('2d');
+        new Chart(typeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.FraudTypeCounts.Select(f => f.Type))),
+                datasets: [{
+                    data: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.FraudTypeCounts.Select(f => f.Count))),
+                    backgroundColor: ['#dc3545','#fd7e14','#6f42c1','#0d6efd','#198754']
+                }]
+            },
+            options: { responsive: true }
+        });
+    </script>
+}

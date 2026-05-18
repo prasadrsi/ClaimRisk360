@@ -1,0 +1,508 @@
+@page
+@model ClaimRisk360.Pages.RulesDocumentationModel
+@{
+    ViewData["Title"] = "Rules & Evaluation Criteria";
+}
+
+<h2 class="mb-4"><i class="bi bi-book"></i> Rules &amp; Evaluation Criteria</h2>
+<p class="text-muted mb-4">Complete reference of all rules, thresholds, and evaluation criteria used across the ClaimRisk 360 platform.</p>
+
+<!-- Table of Contents -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <strong class="me-2">Jump to:</strong>
+        <a href="#claim-validation" class="badge bg-primary text-decoration-none me-1">1. Claim Validation</a>
+        <a href="#fraud-rules" class="badge bg-danger text-decoration-none me-1">2. Fraud Detection Rules</a>
+        <a href="#pattern-analysis" class="badge bg-warning text-dark text-decoration-none me-1">3. Pattern Analysis</a>
+        <a href="#stp-rules" class="badge bg-success text-decoration-none me-1">4. STP &amp; Approval</a>
+        <a href="#risk-scoring" class="badge bg-info text-decoration-none me-1">5. Risk Scoring</a>
+        <a href="#provider-risk" class="badge bg-dark text-decoration-none me-1">6. Provider Profiling</a>
+        <a href="#digital-risk" class="badge bg-secondary text-decoration-none me-1">7. Digital Risk</a>
+        <a href="#reference-data" class="badge bg-primary text-decoration-none me-1">8. Reference Data</a>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: Claim Validation -->
+<!-- ============================================================ -->
+<div id="claim-validation" class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-check2-square"></i> 1. Claim Submission Validation Rules</h5>
+    </div>
+    <div class="card-body p-0">
+        <p class="p-3 mb-0 text-muted">Applied at claim upload time. Claims failing validation are rejected before entering the pipeline.</p>
+
+        <h6 class="px-3 pt-2 fw-bold">1A. Required Fields</h6>
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light"><tr><th>Rule ID</th><th>Field</th><th>Code</th><th>Condition</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr><td><code>VAL-001</code></td><td>PatientName</td><td>REQUIRED</td><td>Empty or whitespace</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-002</code></td><td>PatientId</td><td>REQUIRED</td><td>Empty or whitespace</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-003</code></td><td>ProviderName</td><td>REQUIRED</td><td>Empty or whitespace</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-004</code></td><td>ProviderId</td><td>REQUIRED</td><td>Empty or whitespace</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-005</code></td><td>DiagnosisCode</td><td>REQUIRED</td><td>Empty or whitespace</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-006</code></td><td>ProcedureCode</td><td>REQUIRED</td><td>Empty or whitespace</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-007</code></td><td>Amount</td><td>INVALID_AMOUNT</td><td>Amount ? 0</td><td class="text-danger fw-bold">Reject</td></tr>
+            </tbody>
+        </table>
+
+        <h6 class="px-3 pt-3 fw-bold">1B. Date Validation</h6>
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light"><tr><th>Rule ID</th><th>Field</th><th>Code</th><th>Condition</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr><td><code>VAL-008</code></td><td>ServiceDate</td><td>FUTURE_DATE</td><td>Date is in the future</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-009</code></td><td>ServiceDate</td><td>STALE_CLAIM</td><td>Date is older than 1 year</td><td class="text-danger fw-bold">Reject</td></tr>
+            </tbody>
+        </table>
+
+        <h6 class="px-3 pt-3 fw-bold">1C. Business Reference Validation</h6>
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light"><tr><th>Rule ID</th><th>Field</th><th>Code</th><th>Condition</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr><td><code>VAL-010</code></td><td>DiagnosisCode</td><td>INVALID_CODE</td><td>Not in valid diagnosis codes list</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-011</code></td><td>ProcedureCode</td><td>INVALID_CODE</td><td>Not in valid procedure codes list</td><td class="text-danger fw-bold">Reject</td></tr>
+                <tr><td><code>VAL-012</code></td><td>ProviderId</td><td>INACTIVE_PROVIDER</td><td>Provider not in active providers list</td><td class="text-danger fw-bold">Reject</td></tr>
+            </tbody>
+        </table>
+
+        <h6 class="px-3 pt-3 fw-bold">1D. Warnings (Non-blocking)</h6>
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light"><tr><th>Rule ID</th><th>Condition</th><th>Warning Message</th></tr></thead>
+            <tbody>
+                <tr><td><code>VAL-W01</code></td><td>Amount &gt; $50,000</td><td>Claim amount exceeds $50,000 threshold — will require additional review</td></tr>
+                <tr><td><code>VAL-W02</code></td><td>Location is empty</td><td>Location not provided — geographic analysis will be limited</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: Fraud Detection Rules -->
+<!-- ============================================================ -->
+<div id="fraud-rules" class="card mb-4">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> 2. Fraud Detection Rules (Rule Engine)</h5>
+    </div>
+    <div class="card-body p-0">
+        <p class="p-3 mb-0 text-muted">Evaluated against every claim post-ingestion. Each rule produces a triggered/not-triggered result with severity.</p>
+
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Rule ID</th><th>Rule Name</th><th>Category</th><th>Trigger Condition</th><th>Severity Logic</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>DUP-*</code></td>
+                    <td><strong>Duplicate Claim Detection</strong></td>
+                    <td><span class="badge bg-secondary">Duplicate</span></td>
+                    <td>Same PatientId + ProviderId + DiagnosisCode within 3 days</td>
+                    <td>
+                        <span class="badge bg-danger">Critical</span> if duplicates found<br/>
+                        <span class="badge bg-success">Low</span> otherwise
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>THR-AMT-*</code></td>
+                    <td><strong>Amount Threshold Breach</strong></td>
+                    <td><span class="badge bg-secondary">Threshold</span></td>
+                    <td>Claim amount &gt; $10,000</td>
+                    <td>
+                        <span class="badge bg-danger">Critical</span> if &gt; $25,000<br/>
+                        <span class="badge bg-warning text-dark">High</span> if &gt; $10,000<br/>
+                        <span class="badge bg-success">Low</span> otherwise
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>THR-FRQ-*</code></td>
+                    <td><strong>Claim Frequency Threshold</strong></td>
+                    <td><span class="badge bg-secondary">Threshold</span></td>
+                    <td>Patient has &gt; 5 total claims</td>
+                    <td>
+                        <span class="badge bg-danger">Critical</span> if &gt; 8 claims<br/>
+                        <span class="badge bg-warning text-dark">High</span> if &gt; 5 claims<br/>
+                        <span class="badge bg-success">Low</span> otherwise
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>BLK-PRV-*</code></td>
+                    <td><strong>Blacklisted Provider Check</strong></td>
+                    <td><span class="badge bg-secondary">Blacklist</span></td>
+                    <td>ProviderId is in blacklisted providers set</td>
+                    <td><span class="badge bg-danger">Critical</span> if on list</td>
+                </tr>
+                <tr>
+                    <td><code>BLK-PAT-*</code></td>
+                    <td><strong>Blacklisted Patient Check</strong></td>
+                    <td><span class="badge bg-secondary">Blacklist</span></td>
+                    <td>PatientId is in blacklisted patients set</td>
+                    <td><span class="badge bg-danger">Critical</span> if on list</td>
+                </tr>
+                <tr>
+                    <td><code>TMG-*</code></td>
+                    <td><strong>Unusual Submission Timing</strong></td>
+                    <td><span class="badge bg-secondary">Timing</span></td>
+                    <td>Submitted on Saturday or Sunday</td>
+                    <td>
+                        <span class="badge bg-info">Medium</span> if weekend<br/>
+                        <span class="badge bg-success">Low</span> otherwise
+                    </td>
+                </tr>
+                <tr>
+                    <td><code>ELG-*</code></td>
+                    <td><strong>Diagnosis-Procedure Eligibility</strong></td>
+                    <td><span class="badge bg-secondary">Eligibility</span></td>
+                    <td>FraudRiskScore &gt; 70 AND FraudType ? "Legitimate"</td>
+                    <td>
+                        <span class="badge bg-warning text-dark">High</span> if triggered<br/>
+                        <span class="badge bg-success">Low</span> otherwise
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: Pattern Analysis -->
+<!-- ============================================================ -->
+<div id="pattern-analysis" class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-graph-up-arrow"></i> 3. Pattern Analysis Rules</h5>
+    </div>
+    <div class="card-body p-0">
+        <p class="p-3 mb-0 text-muted">Behavioral and statistical anomaly detection across the claims portfolio.</p>
+
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Pattern Type</th><th>Entity</th><th>Trigger Condition</th><th>Severity</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><i class="bi bi-graph-up-arrow text-danger"></i> <strong>Patient Frequency Spike</strong></td>
+                    <td>Patient</td>
+                    <td>Patient has ? 4 claims in the dataset</td>
+                    <td>
+                        <span class="badge bg-danger">Critical</span> if ? 6 claims<br/>
+                        <span class="badge bg-warning text-dark">High</span> if ? 4 claims
+                    </td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-graph-up-arrow text-danger"></i> <strong>Provider Frequency Spike</strong></td>
+                    <td>Provider</td>
+                    <td>Provider has ? 6 claims in the dataset</td>
+                    <td>
+                        <span class="badge bg-danger">Critical</span> if ? 10 claims<br/>
+                        <span class="badge bg-warning text-dark">High</span> if ? 6 claims
+                    </td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-currency-dollar text-warning"></i> <strong>Amount Anomaly</strong></td>
+                    <td>Provider / Claim</td>
+                    <td>Claim amount &gt; 2.5× the overall average</td>
+                    <td>
+                        <span class="badge bg-danger">Critical</span> if &gt; 4× average<br/>
+                        <span class="badge bg-warning text-dark">High</span> if &gt; 2.5× average
+                    </td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-clock-history text-info"></i> <strong>Timing Anomaly</strong></td>
+                    <td>System-wide</td>
+                    <td>More than 3 claims submitted on weekends</td>
+                    <td><span class="badge bg-info">Medium</span></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-geo-alt text-primary"></i> <strong>Geographic Anomaly</strong></td>
+                    <td>Patient</td>
+                    <td>Claims from ? 3 different locations for same patient</td>
+                    <td><span class="badge bg-warning text-dark">High</span></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-person-exclamation text-secondary"></i> <strong>Near-Policy-Limit (Behavioral)</strong></td>
+                    <td>Patient / Claim</td>
+                    <td>Claim amount &gt; $12,000</td>
+                    <td><span class="badge bg-info">Medium</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: STP & Approval Rules -->
+<!-- ============================================================ -->
+<div id="stp-rules" class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-lightning"></i> 4. Straight-Through Processing (STP) &amp; Approval Rules</h5>
+    </div>
+    <div class="card-body">
+        <h6 class="fw-bold">4A. Automatic STP Decisions</h6>
+        <table class="table table-sm table-bordered mb-4">
+            <thead class="table-light"><tr><th>Decision</th><th>Conditions</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge bg-success"><i class="bi bi-lightning-fill"></i> Auto-Approved</span></td>
+                    <td>FraudRiskScore ? 25 <strong>AND</strong> no digital risk flags <strong>AND</strong> FraudType = "Legitimate"</td>
+                    <td>Claim approved immediately, no human review required</td>
+                </tr>
+                <tr>
+                    <td><span class="badge bg-danger"><i class="bi bi-x-circle-fill"></i> Auto-Rejected</span></td>
+                    <td>FraudRiskScore ? 85 <strong>OR</strong> ? 2 Critical/High digital risk signals</td>
+                    <td>Claim rejected automatically</td>
+                </tr>
+                <tr>
+                    <td><span class="badge bg-warning text-dark"><i class="bi bi-person-lines-fill"></i> Routed to Review</span></td>
+                    <td>Score between 26–84 (grey zone) with &lt; 2 digital risk flags</td>
+                    <td>Claim queued for human investigation</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h6 class="fw-bold">4B. Manual Approval Rules</h6>
+        <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light"><tr><th>Rule</th><th>Condition</th><th>Enforced By</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Mandatory Comment</strong></td>
+                    <td>All manual approvals and rejections <strong>require</strong> a justification comment</td>
+                    <td>ClaimApprovalService + CaseManagementService (server-side)</td>
+                </tr>
+                <tr>
+                    <td><strong>Permission: Approve</strong></td>
+                    <td>Only users with <code>CanApproveClaim</code> permission can approve</td>
+                    <td>Roles: Administrator, Approver</td>
+                </tr>
+                <tr>
+                    <td><strong>Permission: Reject</strong></td>
+                    <td>Only users with <code>CanRejectClaim</code> permission can reject</td>
+                    <td>Roles: Administrator, Approver</td>
+                </tr>
+                <tr>
+                    <td><strong>Permission: Escalate</strong></td>
+                    <td>Only users with <code>CanEscalateClaim</code> permission can escalate</td>
+                    <td>Roles: Administrator, Approver, Investigator</td>
+                </tr>
+                <tr>
+                    <td><strong>No Re-Approval</strong></td>
+                    <td>Claims already in "Auto-Approved" or "Approved" status cannot be approved again</td>
+                    <td>ClaimApprovalService</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: Risk Scoring -->
+<!-- ============================================================ -->
+<div id="risk-scoring" class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-speedometer2"></i> 5. Risk Score Classification &amp; AI Features</h5>
+    </div>
+    <div class="card-body">
+        <h6 class="fw-bold">5A. Risk Score Bands</h6>
+        <table class="table table-sm table-bordered mb-4">
+            <thead class="table-light"><tr><th>Score Range</th><th>Category</th><th>AI Decision</th><th>Badge</th></tr></thead>
+            <tbody>
+                <tr><td>0 – 30</td><td>Low</td><td>Auto-Approve</td><td><span class="badge bg-success">Low Risk</span></td></tr>
+                <tr><td>31 – 70</td><td>Medium</td><td>Monitor</td><td><span class="badge bg-warning text-dark">Medium Risk</span></td></tr>
+                <tr><td>71 – 100</td><td>High</td><td>Flag for Manual Audit</td><td><span class="badge bg-danger">High Risk</span></td></tr>
+            </tbody>
+        </table>
+
+        <h6 class="fw-bold">5B. SHAP Feature Contributions (Explainability)</h6>
+        <p class="text-muted">Model: <strong>Isolation Forest + Graph Neural Network</strong>. Each feature contributes positively (increases risk) or negatively (decreases risk).</p>
+        <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light"><tr><th>Feature</th><th>Positive Trigger (Increases Risk)</th><th>Contribution</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Provider Network Density</strong></td><td>FraudType = "Collusion"</td><td>+0.45</td></tr>
+                <tr><td><strong>Billing Frequency</strong></td><td>FraudRiskScore &gt; 50</td><td>+0.32</td></tr>
+                <tr><td><strong>Amount vs Peer Average</strong></td><td>Amount &gt; $8,000</td><td>+0.28</td></tr>
+                <tr><td><strong>Diagnosis-Procedure Match</strong></td><td>FraudRiskScore &gt; 70</td><td>+0.22</td></tr>
+                <tr><td><strong>Specialty Norm Deviation</strong></td><td>FraudRiskScore &gt; 50</td><td>+0.20</td></tr>
+                <tr><td><strong>Temporal Pattern</strong></td><td>FraudRiskScore &gt; 60</td><td>+0.18</td></tr>
+                <tr><td><strong>Geographic Consistency</strong></td><td>FraudRiskScore &gt; 80</td><td>+0.15</td></tr>
+                <tr><td><strong>Patient History</strong></td><td>Always negative (protective)</td><td>?0.10</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: Provider Profiling -->
+<!-- ============================================================ -->
+<div id="provider-risk" class="card mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-building"></i> 6. Provider Risk Profiling Rules</h5>
+    </div>
+    <div class="card-body">
+        <h6 class="fw-bold">6A. Provider Risk Score Formula</h6>
+        <div class="alert alert-light border font-monospace small mb-3">
+            Score = (Flag Rate × 0.4) + (|Peer Deviation %| × 0.3) + min(Claim Volume × 3, 30)<br/>
+            Capped at 100
+        </div>
+        <table class="table table-sm table-bordered mb-4">
+            <thead class="table-light"><tr><th>Score Range</th><th>Risk Level</th></tr></thead>
+            <tbody>
+                <tr><td>&gt; 70</td><td><span class="badge bg-danger">High</span></td></tr>
+                <tr><td>41 – 70</td><td><span class="badge bg-warning text-dark">Medium</span></td></tr>
+                <tr><td>0 – 40</td><td><span class="badge bg-success">Low</span></td></tr>
+            </tbody>
+        </table>
+
+        <h6 class="fw-bold">6B. Risk Indicators (Auto-Generated)</h6>
+        <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light"><tr><th>Indicator</th><th>Trigger</th></tr></thead>
+            <tbody>
+                <tr><td>Billing significantly above peer average</td><td>Peer deviation &gt; 40%</td></tr>
+                <tr><td>High proportion of flagged claims</td><td>Flag rate &gt; 40%</td></tr>
+                <tr><td>Unusually high claim volume</td><td>Total claims &gt; 8</td></tr>
+                <tr><td>Linked to suspected fraud ring</td><td>Any claim has FraudType = "Collusion"</td></tr>
+                <tr><td>Repeated treatments for same patients</td><td>Distinct patients &lt; 50% of total claims</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: Digital Risk -->
+<!-- ============================================================ -->
+<div id="digital-risk" class="card mb-4">
+    <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0"><i class="bi bi-shield-shaded"></i> 7. Digital Risk Signal Rules</h5>
+    </div>
+    <div class="card-body p-0">
+        <p class="p-3 mb-0 text-muted">Device fingerprinting and network analysis signals. Evaluated per claim.</p>
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light"><tr><th>Signal</th><th>Detection Logic</th><th>Risk Level</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><i class="bi bi-phone text-primary"></i> <strong>Device Reuse</strong></td>
+                    <td>Same device ID used by multiple different claimants (high-risk claims only)</td>
+                    <td><span class="badge bg-warning text-dark">High</span></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-shield-shaded text-danger"></i> <strong>VPN/Proxy Detection</strong></td>
+                    <td>Submission IP matches known VPN/proxy/TOR addresses (high-risk, 40% probability)</td>
+                    <td><span class="badge bg-danger">Critical</span></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-geo-alt-fill text-warning"></i> <strong>Geo Mismatch</strong></td>
+                    <td>IP geolocation does not match claim's stated location (medium-risk, 30% probability)</td>
+                    <td><span class="badge bg-warning text-dark">High</span></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-lightning text-info"></i> <strong>Rapid Submission</strong></td>
+                    <td>Multiple claims submitted within 2 minutes from the same session (high-risk, 35% probability)</td>
+                    <td><span class="badge bg-info">Medium</span></td>
+                </tr>
+                <tr>
+                    <td><i class="bi bi-robot text-danger"></i> <strong>Bot Pattern</strong></td>
+                    <td>Non-browser user agent detected (python-requests, curl) for Collusion-type claims (50% probability)</td>
+                    <td><span class="badge bg-danger">Critical</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 8: Reference Data -->
+<!-- ============================================================ -->
+<div id="reference-data" class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-database"></i> 8. Reference Data &amp; Lookup Tables</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <h6 class="fw-bold">Valid Diagnosis Codes</h6>
+                <ul class="list-group list-group-flush small">
+                    @foreach (var code in Model.DiagnosisCodes)
+                    {
+                        <li class="list-group-item py-1"><code>@code</code></li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="fw-bold">Valid Procedure Codes</h6>
+                <ul class="list-group list-group-flush small">
+                    @foreach (var code in Model.ProcedureCodes)
+                    {
+                        <li class="list-group-item py-1"><code>@code</code></li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="fw-bold">Active Providers</h6>
+                <ul class="list-group list-group-flush small">
+                    @foreach (var id in Model.ActiveProviders)
+                    {
+                        <li class="list-group-item py-1"><code>@id</code></li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <h6 class="fw-bold text-danger">Blacklisted Providers</h6>
+                <ul class="list-group list-group-flush small">
+                    @foreach (var id in Model.BlacklistedProviders)
+                    {
+                        <li class="list-group-item py-1 text-danger"><code>@id</code></li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="fw-bold text-danger">Blacklisted Patients</h6>
+                <ul class="list-group list-group-flush small">
+                    @foreach (var id in Model.BlacklistedPatients)
+                    {
+                        <li class="list-group-item py-1 text-danger"><code>@id</code></li>
+                    }
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="fw-bold text-warning">Watchlist Bank Accounts</h6>
+                <ul class="list-group list-group-flush small">
+                    @foreach (var id in Model.WatchlistAccounts)
+                    {
+                        <li class="list-group-item py-1 text-warning"><code>@id</code></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Card -->
+<div class="card bg-light">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-2">
+                <h4 class="fw-bold text-primary">14</h4>
+                <small class="text-muted">Validation Rules</small>
+            </div>
+            <div class="col-md-2">
+                <h4 class="fw-bold text-danger">7</h4>
+                <small class="text-muted">Fraud Rules</small>
+            </div>
+            <div class="col-md-2">
+                <h4 class="fw-bold text-warning">6</h4>
+                <small class="text-muted">Pattern Rules</small>
+            </div>
+            <div class="col-md-2">
+                <h4 class="fw-bold text-success">3</h4>
+                <small class="text-muted">STP Rules</small>
+            </div>
+            <div class="col-md-2">
+                <h4 class="fw-bold text-info">8</h4>
+                <small class="text-muted">AI Features</small>
+            </div>
+            <div class="col-md-2">
+                <h4 class="fw-bold text-secondary">5</h4>
+                <small class="text-muted">Digital Signals</small>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,143 @@
+@page
+@model ClaimRisk360.Pages.ProviderProfilingModel
+@{
+    ViewData["Title"] = "Provider Profiling";
+}
+
+<h2 class="mb-4"><i class="bi bi-building"></i> Provider &amp; Merchant Profiling</h2>
+
+<div class="row">
+    <div class="col-md-@(Model.SelectedProfile is not null ? "5" : "12")">
+        <div class="card">
+            <div class="card-header"><strong>All Providers</strong> <span class="badge bg-primary float-end">@Model.Profiles.Count</span></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0 align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Provider</th>
+                                <th>Specialty</th>
+                                <th>Claims</th>
+                                <th>Avg Amount</th>
+                                <th>Peer Avg</th>
+                                <th>Deviation</th>
+                                <th>Flag Rate</th>
+                                <th>Risk</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Profiles)
+                            {
+                                <tr class="@(p.ProviderId == Model.SelectedProviderId ? "table-active" : "")">
+                                    <td><strong>@p.ProviderName</strong><br /><small class="text-muted">@p.ProviderId</small></td>
+                                    <td>@p.Specialty</td>
+                                    <td>@p.TotalClaims</td>
+                                    <td>$@p.AvgClaimAmount.ToString("N0")</td>
+                                    <td>$@p.PeerAvgAmount.ToString("N0")</td>
+                                    <td>
+                                        <span class="@(p.DeviationPercent > 30 ? "text-danger fw-bold" : p.DeviationPercent > 0 ? "text-warning" : "text-success")">
+                                            @(p.DeviationPercent > 0 ? "+" : "")@p.DeviationPercent%
+                                        </span>
+                                    </td>
+                                    <td>@p.FlagRate%</td>
+                                    <td><span class="badge @p.RiskBadgeClass">@p.RiskLevel (@p.RiskScore)</span></td>
+                                    <td><a asp-page="/ProviderProfiling" asp-route-providerId="@p.ProviderId" class="btn btn-sm btn-outline-primary">Detail</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.SelectedProfile is not null)
+    {
+        <div class="col-md-7">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>@Model.SelectedProfile.ProviderName</strong>
+                    <span class="badge @Model.SelectedProfile.RiskBadgeClass float-end">Risk: @Model.SelectedProfile.RiskScore</span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <dl class="row mb-0">
+                                <dt class="col-5">Provider ID</dt><dd class="col-7">@Model.SelectedProfile.ProviderId</dd>
+                                <dt class="col-5">Specialty</dt><dd class="col-7">@Model.SelectedProfile.Specialty</dd>
+                                <dt class="col-5">Location</dt><dd class="col-7">@Model.SelectedProfile.Location</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row mb-0">
+                                <dt class="col-5">Total Billed</dt><dd class="col-7">$@Model.SelectedProfile.TotalBilled.ToString("N2")</dd>
+                                <dt class="col-5">Flagged</dt><dd class="col-7">@Model.SelectedProfile.FlaggedClaims / @Model.SelectedProfile.TotalClaims</dd>
+                                <dt class="col-5">Flag Rate</dt><dd class="col-7"><strong>@Model.SelectedProfile.FlagRate%</strong></dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Peer Comparison Bar -->
+                    <h6 class="mt-3">Peer Benchmarking</h6>
+                    <div class="mb-2">
+                        <small>This Provider: $@Model.SelectedProfile.AvgClaimAmount.ToString("N0")</small>
+                        <div class="progress" style="height: 20px;">
+                            @{
+                                var maxVal = Math.Max(Model.SelectedProfile.AvgClaimAmount, Model.SelectedProfile.PeerAvgAmount);
+                                var providerWidth = maxVal > 0 ? (int)(Model.SelectedProfile.AvgClaimAmount / maxVal * 100) : 0;
+                                var peerWidth = maxVal > 0 ? (int)(Model.SelectedProfile.PeerAvgAmount / maxVal * 100) : 0;
+                            }
+                            <div class="progress-bar @(Model.SelectedProfile.DeviationPercent > 30 ? "bg-danger" : "bg-primary")" style="width: @providerWidth%">
+                                $@Model.SelectedProfile.AvgClaimAmount.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <small>Peer Average: $@Model.SelectedProfile.PeerAvgAmount.ToString("N0")</small>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-secondary" style="width: @peerWidth%">
+                                $@Model.SelectedProfile.PeerAvgAmount.ToString("N0")
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.SelectedProfile.RiskIndicators.Count > 0)
+                    {
+                        <h6>Risk Indicators</h6>
+                        <ul class="list-group list-group-flush mb-3">
+                            @foreach (var indicator in Model.SelectedProfile.RiskIndicators)
+                            {
+                                <li class="list-group-item py-1">
+                                    <i class="bi bi-exclamation-triangle text-warning"></i> @indicator
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><strong>Claims by this Provider</strong></div>
+                <div class="card-body p-0">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-light"><tr><th>Claim</th><th>Patient</th><th>Amount</th><th>Score</th><th>Type</th><th></th></tr></thead>
+                        <tbody>
+                            @foreach (var claim in Model.ProviderClaims)
+                            {
+                                <tr>
+                                    <td><strong>@claim.ClaimId</strong></td>
+                                    <td>@claim.PatientName</td>
+                                    <td>$@claim.Amount.ToString("N2")</td>
+                                    <td><span class="badge @claim.RiskBadgeClass">@claim.FraudRiskScore</span></td>
+                                    <td>@claim.FraudType</td>
+                                    <td><a asp-page="/Explainability" asp-route-ClaimId="@claim.ClaimId" class="btn btn-sm btn-outline-info">Explain</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

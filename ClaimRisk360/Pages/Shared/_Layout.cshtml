@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CLAIMRISK 360</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ClaimRisk360.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <!-- Mobile Top Bar -->
+    <nav class="navbar d-md-none navbar-dark cr-topbar">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" asp-page="/Index">
+                <i class="bi bi-shield-check"></i> CLAIMRISK 360
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <nav id="sidebarOffcanvas" class="offcanvas-md offcanvas-start cr-sidebar d-md-flex flex-column flex-shrink-0">
+            <div class="offcanvas-header d-md-none">
+                <h5 class="offcanvas-title text-white">Menu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas"></button>
+            </div>
+            <div class="offcanvas-body d-flex flex-column p-0">
+                <!-- Brand -->
+                <a asp-page="/Index" class="cr-brand d-none d-md-flex align-items-center text-decoration-none">
+                    <span class="cr-brand-icon"><i class="bi bi-shield-check"></i></span>
+                    <div class="ms-2">
+                        <span class="cr-brand-title">CLAIMRISK 360</span>
+                        <small class="cr-brand-tagline d-block">Claim Risk Intelligence</small>
+                    </div>
+                </a>
+
+                <hr class="text-secondary mx-3 mt-0 mb-2 d-none d-md-block" />
+
+                @{
+                    var perms = RoleAccess.GetCurrentPermissions();
+                    var currentRole = RoleAccess.GetCurrentRole();
+                    var currentUser = RoleAccess.GetCurrentUser();
+                }
+
+                <!-- Main Nav -->
+                <ul class="nav nav-pills flex-column px-2 mb-auto">
+                    <li class="cr-nav-label">OVERVIEW</li>
+                    <li class="nav-item">
+                        <a class="nav-link cr-nav-link" asp-page="/Index">
+                            <i class="bi bi-house-door"></i> Home
+                        </a>
+                    </li>
+                    @if (perms.CanViewDashboard)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/Dashboard">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                    }
+
+                    @if (perms.CanSubmitClaim || perms.CanViewClaims || perms.CanReviewClaim)
+                    {
+                        <li class="cr-nav-label">CLAIMS PROCESSING</li>
+                    }
+                    @if (perms.CanSubmitClaim)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/ClaimUpload">
+                                <i class="bi bi-upload"></i> Submit Claim
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanViewClaims)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/Claims">
+                                <i class="bi bi-inbox"></i> Claims Inbox
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanReviewClaim)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/Explainability">
+                                <i class="bi bi-file-earmark-check"></i> Claim Review
+                            </a>
+                        </li>
+                    }
+
+                    @if (perms.CanViewFraudAlerts || perms.CanViewPatterns || perms.CanViewMlModels)
+                    {
+                        <li class="cr-nav-label">FRAUD DETECTION</li>
+                    }
+                    @if (perms.CanViewFraudAlerts)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/RuleEngine">
+                                <i class="bi bi-exclamation-triangle"></i> Fraud Alerts
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanViewPatterns)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/PatternAnalysis">
+                                <i class="bi bi-graph-up-arrow"></i> Pattern Analysis
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanViewMlModels)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/DigitalRisk">
+                                <i class="bi bi-robot"></i> ML Models &amp; STP
+                            </a>
+                        </li>
+                    }
+
+                    @if (perms.CanManageCases || perms.CanViewFraudRings || perms.CanViewProviderProfiles)
+                    {
+                        <li class="cr-nav-label">INVESTIGATION</li>
+                    }
+                    @if (perms.CanManageCases)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/CaseManagement">
+                                <i class="bi bi-person-check"></i> Case Management
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanViewFraudRings)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/FraudRings">
+                                <i class="bi bi-diagram-3"></i> Network &amp; Collusion
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanViewProviderProfiles)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/ProviderProfiling">
+                                <i class="bi bi-building"></i> Provider Profiles
+                            </a>
+                        </li>
+                    }
+
+                    @if (perms.CanViewReports)
+                    {
+                        <li class="cr-nav-label">REPORTING</li>
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/Reports">
+                                <i class="bi bi-bar-chart-line"></i> Reports &amp; Analytics
+                            </a>
+                        </li>
+                    }
+
+                    @if (perms.CanViewAuditTrail || perms.CanViewEthicsReport || perms.CanManageUsers)
+                    {
+                        <li class="cr-nav-label">ADMINISTRATION</li>
+                    }
+                    @if (perms.CanViewAuditTrail)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/AuditTrail">
+                                <i class="bi bi-journal-text"></i> Audit &amp; Compliance
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanViewEthicsReport)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/EthicsReport">
+                                <i class="bi bi-clipboard2-check"></i> Ethics &amp; Governance
+                            </a>
+                        </li>
+                    }
+                    @if (perms.CanManageUsers)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link cr-nav-link" asp-page="/UserManagement">
+                                <i class="bi bi-people"></i> User Management
+                            </a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link cr-nav-link" asp-page="/Privacy">
+                            <i class="bi bi-lock"></i> Privacy
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cr-nav-link" asp-page="/RulesDocumentation">
+                            <i class="bi bi-book"></i> Rules &amp; Criteria
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Sidebar User Badge -->
+                <div class="cr-sidebar-user">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi @currentRole.IconClass"></i>
+                        <div>
+                            <small class="d-block" style="color:#fff; font-size:0.75rem;">@currentUser.DisplayName</small>
+                            <span class="badge @currentRole.BadgeClass" style="font-size:0.6rem;">@currentRole.RoleName</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User -->
+                <div class="cr-sidebar-footer">
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="cr-main flex-grow-1">
+            <!-- Top header bar -->
+            <header class="cr-header d-none d-md-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="mb-0 fw-semibold">@ViewData["Title"]</h5>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    @{
+                        var approvalSummary = ApprovalAccess.GetSummary();
+                        var pendingCount = approvalSummary.PendingReview;
+                    }
+                    <a asp-page="/Claims" asp-route-ApprovalFilter="Pending Review" class="text-decoration-none position-relative" title="@pendingCount claim(s) pending review">
+                        <i class="bi bi-bell fs-5 text-secondary"></i>
+                        @if (pendingCount > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cr-notif-badge">
+                                @pendingCount
+                            </span>
+                        }
+                    </a>
+                    <span id="cr-connection-status" class="cr-connection-dot bg-secondary" title="Connecting..."></span>
+                    <a asp-page="/UserManagement" class="text-decoration-none">
+                        <span class="badge @currentRole.BadgeClass">
+                            <i class="bi @currentRole.IconClass"></i> @currentRole.RoleName
+                        </span>
+                    </a>
+                    <partial name="_LoginPartial" />
+                </div>
+            </header>
+
+            <main class="cr-content">
+                @RenderBody()
+            </main>
+
+            <footer class="cr-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small>&copy; 2026 CLAIMRISK 360 &mdash; End-to-End Claim Risk Intelligence Platform</small>
+                    <small>
+                        <a asp-page="/Privacy" class="text-muted text-decoration-none">Privacy</a>
+                        <span class="mx-1">|</span>
+                        <a asp-page="/EthicsReport" class="text-muted text-decoration-none">Ethics</a>
+                    </small>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="cr-toast-container" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1090;"></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/notifications.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

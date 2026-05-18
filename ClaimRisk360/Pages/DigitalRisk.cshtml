@@ -1,0 +1,189 @@
+@page
+@model ClaimRisk360.Pages.DigitalRiskModel
+@{
+    ViewData["Title"] = "Digital Risk & STP";
+}
+
+<h2 class="mb-4"><i class="bi bi-fingerprint"></i> Digital Risk &amp; Straight-Through Processing</h2>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link @(Model.ActiveTab == "signals" ? "active" : "")" asp-page="/DigitalRisk" asp-route-tab="signals">
+            <i class="bi bi-shield-shaded"></i> Digital Risk Signals
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model.ActiveTab == "stp" ? "active" : "")" asp-page="/DigitalRisk" asp-route-tab="stp">
+            <i class="bi bi-lightning"></i> STP Decisions
+        </a>
+    </li>
+</ul>
+
+@if (Model.ActiveTab == "signals")
+{
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body text-center">
+                    <h6>Critical</h6>
+                    <h2>@Model.Signals.Count(s => s.RiskLevel == "Critical")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-dark bg-warning h-100">
+                <div class="card-body text-center">
+                    <h6>High</h6>
+                    <h2>@Model.Signals.Count(s => s.RiskLevel == "High")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-white bg-info h-100">
+                <div class="card-body text-center">
+                    <h6>Medium</h6>
+                    <h2>@Model.Signals.Count(s => s.RiskLevel == "Medium")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-light h-100">
+                <div class="card-body">
+                    <h6>Signal Types</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var group in Model.Signals.GroupBy(s => s.SignalType))
+                        {
+                            <span class="badge bg-secondary">@group.Key: @group.Count()</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <a asp-page="/DigitalRisk" asp-route-tab="signals" asp-route-type="All" class="btn btn-sm btn-outline-secondary @(Model.FilterType is null or "All" ? "active" : "")">All</a>
+        <a asp-page="/DigitalRisk" asp-route-tab="signals" asp-route-type="Device Reuse" class="btn btn-sm btn-outline-danger @(Model.FilterType == "Device Reuse" ? "active" : "")"><i class="bi bi-phone"></i> Device Reuse</a>
+        <a asp-page="/DigitalRisk" asp-route-tab="signals" asp-route-type="VPN/Proxy" class="btn btn-sm btn-outline-dark @(Model.FilterType == "VPN/Proxy" ? "active" : "")"><i class="bi bi-shield-shaded"></i> VPN/Proxy</a>
+        <a asp-page="/DigitalRisk" asp-route-tab="signals" asp-route-type="Geo Mismatch" class="btn btn-sm btn-outline-warning @(Model.FilterType == "Geo Mismatch" ? "active" : "")"><i class="bi bi-geo-alt-fill"></i> Geo Mismatch</a>
+        <a asp-page="/DigitalRisk" asp-route-tab="signals" asp-route-type="Rapid Submission" class="btn btn-sm btn-outline-info @(Model.FilterType == "Rapid Submission" ? "active" : "")"><i class="bi bi-lightning"></i> Rapid</a>
+        <a asp-page="/DigitalRisk" asp-route-tab="signals" asp-route-type="Bot Pattern" class="btn btn-sm btn-outline-primary @(Model.FilterType == "Bot Pattern" ? "active" : "")"><i class="bi bi-robot"></i> Bot</a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Signal</th>
+                            <th>Claim</th>
+                            <th>Type</th>
+                            <th>Device</th>
+                            <th>IP Address</th>
+                            <th>Geo</th>
+                            <th>Risk</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var signal in Model.Signals)
+                        {
+                            <tr>
+                                <td><code>@signal.SignalId</code></td>
+                                <td><strong>@signal.ClaimId</strong></td>
+                                <td><i class="bi @signal.IconClass me-1"></i> @signal.SignalType</td>
+                                <td><code>@signal.DeviceId</code></td>
+                                <td><code>@signal.IpAddress</code></td>
+                                <td><small>@signal.GeoLocation</small></td>
+                                <td><span class="badge @signal.RiskBadgeClass">@signal.RiskLevel</span></td>
+                                <td><small>@signal.Details</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <!-- STP Decisions -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-success h-100">
+                <div class="card-body text-center">
+                    <h6><i class="bi bi-check-circle-fill"></i> Auto-Approved</h6>
+                    <h2>@Model.StpDecisions.Count(s => s.Action == "Auto-Approved")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-dark bg-warning h-100">
+                <div class="card-body text-center">
+                    <h6><i class="bi bi-person-lines-fill"></i> Routed to Review</h6>
+                    <h2>@Model.StpDecisions.Count(s => s.Action == "Routed to Review")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body text-center">
+                    <h6><i class="bi bi-x-circle-fill"></i> Auto-Rejected</h6>
+                    <h2>@Model.StpDecisions.Count(s => s.Action == "Auto-Rejected")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-light h-100">
+                <div class="card-body text-center">
+                    <h6>STP Rate</h6>
+                    @{
+                        var stpRate = Model.StpDecisions.Count > 0
+                            ? (double)Model.StpDecisions.Count(s => s.Action == "Auto-Approved") / Model.StpDecisions.Count * 100
+                            : 0;
+                    }
+                    <h2>@stpRate.ToString("F1")%</h2>
+                    <small class="text-muted">Auto-processed without human touch</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><strong>All STP Decisions</strong></div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Claim</th>
+                            <th>Action</th>
+                            <th>Risk Score</th>
+                            <th>Rules Fired</th>
+                            <th>Digital Flags</th>
+                            <th>Reason</th>
+                            <th>Processed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var stp in Model.StpDecisions)
+                        {
+                            <tr>
+                                <td><strong>@stp.ClaimId</strong></td>
+                                <td><i class="bi @stp.ActionIcon me-1"></i> <span class="badge @stp.ActionBadgeClass">@stp.Action</span></td>
+                                <td>@stp.RiskScore</td>
+                                <td>@stp.RulesFired</td>
+                                <td>@stp.DigitalRiskFlags</td>
+                                <td><small>@stp.Reason</small></td>
+                                <td><small>@stp.ProcessedAt.ToString("MMM dd, HH:mm:ss")</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

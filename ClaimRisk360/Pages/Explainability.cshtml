@@ -1,0 +1,150 @@
+@page
+@model ClaimRisk360.Pages.ExplainabilityModel
+@{
+    ViewData["Title"] = "Explainable AI";
+}
+
+<h2 class="mb-4"><i class="bi bi-lightbulb"></i> Explainable AI &mdash; Claim @Model.ClaimId</h2>
+
+@if (Model.Claim is not null)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><strong>Claim Details</strong></div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-5">Claim ID</dt><dd class="col-7">@Model.Claim.ClaimId</dd>
+                        <dt class="col-5">Patient</dt><dd class="col-7">@Model.Claim.PatientName</dd>
+                        <dt class="col-5">Provider</dt><dd class="col-7">@Model.Claim.ProviderName</dd>
+                        <dt class="col-5">Amount</dt><dd class="col-7">$@Model.Claim.Amount.ToString("N2")</dd>
+                        <dt class="col-5">Diagnosis</dt><dd class="col-7"><code>@Model.Claim.DiagnosisCode</code></dd>
+                        <dt class="col-5">Procedure</dt><dd class="col-7"><code>@Model.Claim.ProcedureCode</code></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header"><strong>AI Decision</strong></div>
+                <div class="card-body text-center">
+                    <h1 class="display-3">
+                        <span class="badge @Model.Claim.RiskBadgeClass">@Model.Result.FraudRiskScore</span>
+                    </h1>
+                    <p class="fs-5 mt-2">@Model.Result.Decision</p>
+                    <small class="text-muted">Model: @Model.Result.ModelUsed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header"><strong>Risk Reasons</strong></div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var reason in Model.Claim.RiskReasons)
+                        {
+                            <li class="list-group-item"><i class="bi bi-exclamation-triangle text-warning"></i> @reason</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header"><strong>Feature Contributions (SHAP-style)</strong></div>
+        <div class="card-body">
+            <p class="text-muted mb-3">Each feature's contribution to the final risk score. Positive values increase risk, negative values decrease it.</p>
+            @foreach (var feature in Model.Result.Features)
+            {
+                var widthPercent = Math.Abs(feature.Contribution) * 100;
+                <div class="row align-items-center mb-2">
+                    <div class="col-3 text-end"><strong>@feature.FeatureName</strong></div>
+                    <div class="col-6">
+                        @if (feature.Contribution >= 0)
+                        {
+                            <div class="d-flex">
+                                <div style="width:50%"></div>
+                                <div style="width:50%">
+                                    <div class="progress" style="height:20px;">
+                                        <div class="progress-bar bg-danger" style="width:@(widthPercent * 2)%">
+                                            @feature.Contribution.ToString("+0.00")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-end" style="width:50%">
+                                <div class="progress flex-row-reverse" style="height:20px; width:100%;">
+                                    <div class="progress-bar bg-success" style="width:@(widthPercent * 2)%">
+                                        @feature.Contribution.ToString("0.00")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-3"><small class="text-muted">@feature.Direction</small></div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Supporting Documents -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong><i class="bi bi-paperclip"></i> Supporting Documents</strong>
+            <span class="badge bg-primary">@Model.Documents.Count file(s)</span>
+        </div>
+        @if (Model.Documents.Count > 0)
+        {
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Document</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Uploaded</th>
+                            <th>Uploaded By</th>
+                            <th>Version</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model.Documents)
+                        {
+                            <tr>
+                                <td><i class="bi @doc.IconClass me-1"></i> @doc.FileName</td>
+                                <td>@doc.DocumentType</td>
+                                <td>@doc.FileSizeDisplay</td>
+                                <td><small>@doc.UploadedAt.ToString("MMM dd, yyyy HH:mm")</small></td>
+                                <td>@doc.UploadedBy</td>
+                                <td>v@doc.Version</td>
+                                <td><span class="badge @doc.StatusBadgeClass">@doc.Status</span></td>
+                                <td>
+                                    <a asp-page="/DocumentViewer" asp-route-DocumentId="@doc.DocumentId" class="btn btn-sm btn-outline-primary" title="View document">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="card-body text-center text-muted py-4">
+                <i class="bi bi-folder2-open fs-3"></i>
+                <p class="mb-0 mt-2">No documents uploaded for this claim.</p>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">Claim not found. <a asp-page="/Claims">Browse claims</a></div>
+}

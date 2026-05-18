@@ -1,0 +1,294 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "CLAIMRISK 360";
+    var p = RoleAccess.GetCurrentPermissions();
+    var role = RoleAccess.GetCurrentRole();
+}
+
+<div class="text-center mb-4">
+    <h1 class="display-5 fw-bold"><i class="bi bi-shield-check text-primary"></i> CLAIMRISK 360</h1>
+    <p class="lead text-muted">End-to-End Claim Risk Intelligence Platform</p>
+    <span class="badge @role.BadgeClass"><i class="bi @role.IconClass"></i> Logged in as @role.RoleName</span>
+</div>
+
+<!-- Section 1: Dashboard -->
+@if (p.CanViewDashboard)
+{
+<div class="cr-home-section mb-4">
+    <h6 class="cr-home-label"><i class="bi bi-speedometer2"></i> DASHBOARD</h6>
+    <div class="row g-3">
+        <div class="col-md-12">
+            <a asp-page="/Dashboard" class="text-decoration-none">
+                <div class="card cr-home-card border-primary border-start border-4">
+                    <div class="card-body d-flex align-items-center">
+                        <span class="cr-home-icon bg-primary"><i class="bi bi-speedometer2"></i></span>
+                        <div class="ms-3">
+                            <h6 class="mb-0">Fraud Dashboard</h6>
+                            <small class="text-muted">KPIs, fraud trends, risk distribution, and recent high-risk claims</small>
+                        </div>
+                        <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Section 2: Claims Processing -->
+@if (p.CanSubmitClaim || p.CanViewClaims || p.CanReviewClaim)
+{
+<div class="cr-home-section mb-4">
+    <h6 class="cr-home-label"><i class="bi bi-inbox"></i> CLAIMS PROCESSING</h6>
+    <div class="row g-3">
+        @if (p.CanSubmitClaim)
+        {
+        <div class="col-md-4">
+            <a asp-page="/ClaimUpload" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-success"><i class="bi bi-upload"></i></span>
+                        <h6 class="mt-2 mb-1">Submit Claim</h6>
+                        <small class="text-muted">Upload new claims with supporting documents</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanViewClaims)
+        {
+        <div class="col-md-4">
+            <a asp-page="/Claims" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-primary"><i class="bi bi-inbox"></i></span>
+                        <h6 class="mt-2 mb-1">Claims Inbox</h6>
+                        <small class="text-muted">Browse, filter, and triage all claims by risk level</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanReviewClaim)
+        {
+        <div class="col-md-4">
+            <a asp-page="/Explainability" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-info"><i class="bi bi-file-earmark-check"></i></span>
+                        <h6 class="mt-2 mb-1">Claim Review</h6>
+                        <small class="text-muted">Fraud insights, documents, and AI explainability per claim</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+    </div>
+</div>
+}
+
+<!-- Section 3: Fraud Detection -->
+@if (p.CanViewFraudAlerts || p.CanViewPatterns || p.CanViewMlModels)
+{
+<div class="cr-home-section mb-4">
+    <h6 class="cr-home-label"><i class="bi bi-exclamation-triangle"></i> FRAUD DETECTION</h6>
+    <div class="row g-3">
+        @if (p.CanViewFraudAlerts)
+        {
+        <div class="col-md-4">
+            <a asp-page="/RuleEngine" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-danger"><i class="bi bi-exclamation-triangle"></i></span>
+                        <h6 class="mt-2 mb-1">Fraud Alerts</h6>
+                        <small class="text-muted">Rule-based alerts: duplicates, blacklists, thresholds, eligibility</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanViewPatterns)
+        {
+        <div class="col-md-4">
+            <a asp-page="/PatternAnalysis" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-warning"><i class="bi bi-graph-up-arrow"></i></span>
+                        <h6 class="mt-2 mb-1">Pattern Analysis</h6>
+                        <small class="text-muted">Frequency spikes, timing anomalies, geographic &amp; behavioral patterns</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanViewMlModels)
+        {
+        <div class="col-md-4">
+            <a asp-page="/DigitalRisk" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-dark"><i class="bi bi-robot"></i></span>
+                        <h6 class="mt-2 mb-1">ML Models &amp; STP</h6>
+                        <small class="text-muted">Risk scoring, device fingerprinting, and straight-through processing</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+    </div>
+</div>
+}
+
+<!-- Section 4: Investigation -->
+@if (p.CanManageCases || p.CanViewFraudRings || p.CanViewProviderProfiles)
+{
+<div class="cr-home-section mb-4">
+    <h6 class="cr-home-label"><i class="bi bi-search"></i> INVESTIGATION &amp; CASE MANAGEMENT</h6>
+    <div class="row g-3">
+        @if (p.CanManageCases)
+        {
+        <div class="col-md-4">
+            <a asp-page="/CaseManagement" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-warning"><i class="bi bi-person-check"></i></span>
+                        <h6 class="mt-2 mb-1">Case Management</h6>
+                        <small class="text-muted">Assign, review, escalate, and close investigation cases</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanViewFraudRings)
+        {
+        <div class="col-md-4">
+            <a asp-page="/FraudRings" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-danger"><i class="bi bi-diagram-3"></i></span>
+                        <h6 class="mt-2 mb-1">Network &amp; Collusion</h6>
+                        <small class="text-muted">Graph visualization of provider-patient-pharmacy fraud rings</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanViewProviderProfiles)
+        {
+        <div class="col-md-4">
+            <a asp-page="/ProviderProfiling" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-primary"><i class="bi bi-building"></i></span>
+                        <h6 class="mt-2 mb-1">Provider Profiles</h6>
+                        <small class="text-muted">Risk profiles, peer benchmarking, and outlier detection</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+    </div>
+</div>
+}
+
+<!-- Section 5: Reporting & Administration -->
+@if (p.CanViewReports || p.CanViewAuditTrail || p.CanViewEthicsReport || p.CanManageUsers)
+{
+<div class="cr-home-section mb-4">
+    <h6 class="cr-home-label"><i class="bi bi-bar-chart-line"></i> REPORTING &amp; ADMINISTRATION</h6>
+    <div class="row g-3">
+        @if (p.CanViewReports)
+        {
+        <div class="col-md-3">
+            <a asp-page="/Reports" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-indigo"><i class="bi bi-bar-chart-line"></i></span>
+                        <h6 class="mt-2 mb-1">Reports</h6>
+                        <small class="text-muted">Fraud savings, false positive trends, productivity</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanViewAuditTrail)
+        {
+        <div class="col-md-3">
+            <a asp-page="/AuditTrail" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-secondary"><i class="bi bi-journal-text"></i></span>
+                        <h6 class="mt-2 mb-1">Audit &amp; Compliance</h6>
+                        <small class="text-muted">Immutable audit logs and action history</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanViewEthicsReport)
+        {
+        <div class="col-md-3">
+            <a asp-page="/EthicsReport" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-success"><i class="bi bi-clipboard2-check"></i></span>
+                        <h6 class="mt-2 mb-1">Ethics &amp; Governance</h6>
+                        <small class="text-muted">Bias audits, privacy, and governance framework</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        @if (p.CanManageUsers)
+        {
+        <div class="col-md-3">
+            <a asp-page="/UserManagement" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-danger"><i class="bi bi-people"></i></span>
+                        <h6 class="mt-2 mb-1">User Management</h6>
+                        <small class="text-muted">Roles, permissions, and user administration</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+        <div class="col-md-3">
+            <a asp-page="/Privacy" class="text-decoration-none">
+                <div class="card cr-home-card h-100">
+                    <div class="card-body">
+                        <span class="cr-home-icon bg-dark"><i class="bi bi-lock"></i></span>
+                        <h6 class="mt-2 mb-1">Privacy</h6>
+                        <small class="text-muted">Data retention, PII protection, HIPAA/GDPR</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Footer Capabilities -->
+<div class="card bg-light">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <h6><i class="bi bi-cpu text-primary"></i> AI Techniques</h6>
+                <small class="text-muted">Isolation Forest, Autoencoders, Graph Neural Networks</small>
+            </div>
+            <div class="col-md-3">
+                <h6><i class="bi bi-shield-lock text-success"></i> Safety First</h6>
+                <small class="text-muted">Human-in-the-loop, explainable decisions, bias monitoring</small>
+            </div>
+            <div class="col-md-3">
+                <h6><i class="bi bi-lock text-warning"></i> Compliant</h6>
+                <small class="text-muted">HIPAA, GDPR, encrypted, anonymized synthetic data</small>
+            </div>
+            <div class="col-md-3">
+                <h6><i class="bi bi-lightning text-danger"></i> STP Enabled</h6>
+                <small class="text-muted">Auto-approve low-risk, route grey-zone, reject high-confidence fraud</small>
+            </div>
+        </div>
+    </div>
+</div>
